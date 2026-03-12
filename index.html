@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- GŁÓWNE ZMIENNE I TŁO --- */
         :root {
             --primary-glow: rgba(59, 130, 246, 0.4);
             --success-glow: rgba(34, 197, 94, 0.4);
@@ -28,7 +27,6 @@
             overflow-x: hidden;
         }
 
-        /* --- ANIMACJE (FADE IN & GLOW) --- */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(25px); }
             to { opacity: 1; transform: translateY(0); }
@@ -45,12 +43,8 @@
         }
 
         .view-section { display: none; }
-        .active-view { 
-            display: block; 
-            animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-        }
+        .active-view { display: block; animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* --- NAVBAR (Efekt szkła) --- */
         .navbar-glass {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
@@ -61,70 +55,30 @@
         .navbar-brand { color: #0f172a !important; font-weight: 700; letter-spacing: 0.5px; }
         .brand-icon { color: #3b82f6; text-shadow: 0 0 10px var(--primary-glow); }
 
-        /* --- KARTY (Glow & Hover) --- */
         .card { 
-            border: none; 
-            border-radius: 20px; 
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 10px 40px rgba(14, 165, 233, 0.08); 
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none; border-radius: 20px; background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 40px rgba(14, 165, 233, 0.08); transition: transform 0.3s ease, box-shadow 0.3s ease;
             backdrop-filter: blur(10px);
         }
-        .card:hover { 
-            box-shadow: 0 15px 50px rgba(59, 130, 246, 0.15); 
-        }
-        .card-header { 
-            border-radius: 20px 20px 0 0 !important; 
-            font-weight: 600; 
-            letter-spacing: 1px; 
-            text-transform: uppercase;
-            font-size: 0.85em;
-            border-bottom: none;
-            padding: 1.2rem;
-        }
+        .card:hover { box-shadow: 0 15px 50px rgba(59, 130, 246, 0.15); }
+        .card-header { border-radius: 20px 20px 0 0 !important; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-size: 0.85em; border-bottom: none; padding: 1.2rem; }
         
         .header-primary { background: linear-gradient(135deg, #3b82f6, #0ea5e9); color: white; }
         .header-dark { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; }
 
-        .form-control, .form-select {
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
-            background-color: #f8fafc;
-        }
-        .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-            border-color: #3b82f6;
-            background-color: #ffffff;
-            transform: translateY(-2px);
-        }
+        .form-control, .form-select { border-radius: 12px; border: 1px solid #e2e8f0; padding: 0.75rem 1rem; transition: all 0.3s ease; background-color: #f8fafc; }
+        .form-control:focus, .form-select:focus { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); border-color: #3b82f6; background-color: #ffffff; transform: translateY(-2px); }
         .input-group-text { border-radius: 12px 0 0 12px; border: 1px solid #e2e8f0; border-right: none; background: #f8fafc; }
         
-        .btn { 
-            border-radius: 12px; 
-            font-weight: 600; 
-            padding: 0.6rem 1.2rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            letter-spacing: 0.5px;
-        }
+        .btn { border-radius: 12px; font-weight: 600; padding: 0.6rem 1.2rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); letter-spacing: 0.5px; }
         .btn-primary { background: linear-gradient(135deg, #3b82f6, #0ea5e9); border: none; box-shadow: 0 4px 15px var(--primary-glow); }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--primary-glow); }
-        
         .btn-success { background: linear-gradient(135deg, #22c55e, #10b981); border: none; box-shadow: 0 4px 15px var(--success-glow); }
         .btn-success:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--success-glow); }
 
         .table-responsive { max-height: 60vh; overflow-y: auto; border-radius: 12px; }
         .table { margin-bottom: 0; }
-        .table thead th { 
-            background-color: rgba(248, 250, 252, 0.95); 
-            border-bottom: 2px solid #e2e8f0; 
-            color: #64748b; 
-            text-transform: uppercase; 
-            font-size: 0.75em; 
-            letter-spacing: 0.5px;
-            backdrop-filter: blur(5px);
-        }
+        .table thead th { background-color: rgba(248, 250, 252, 0.95); border-bottom: 2px solid #e2e8f0; color: #64748b; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.5px; backdrop-filter: blur(5px); }
         .table tbody td { vertical-align: middle; font-size: 0.9em; border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
         .table-hover tbody tr:hover td { background-color: #f0f9ff; }
         
@@ -138,8 +92,6 @@
         .form-check-input:checked { background-color: #0f172a; border-color: #0f172a; }
 
         .badge-unit { font-size: 0.7em; background: #e2e8f0; color: #475569; margin-left: 6px; padding: 3px 6px; border-radius: 6px; vertical-align: middle; }
-        .editable-qty { cursor: pointer; text-decoration: underline dashed #cbd5e1; transition: color 0.2s; padding: 2px 5px; }
-        .editable-qty:hover { color: #3b82f6; text-decoration: underline solid #3b82f6; background: rgba(59,130,246,0.1); border-radius: 4px; }
 
         .filters-wrapper { background: #f8fafc; border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
         .search-container input { border-radius: 0 12px 12px 0; border-left: none; }
@@ -178,25 +130,31 @@
         </div>
         <div class="card-body p-4 pt-5 text-center">
             <form id="loginForm">
-                <input type="text" id="loginInput" class="form-control mb-3" placeholder="Identyfikator" required>
-                <input type="password" id="passInput" class="form-control mb-4" placeholder="Hasło" required>
+                <div class="input-group shadow-sm mb-3">
+                    <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                    <input type="text" id="loginInput" class="form-control" placeholder="Identyfikator" required>
+                </div>
+                <div class="input-group shadow-sm mb-4">
+                    <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                    <input type="password" id="passInput" class="form-control" placeholder="Hasło" required>
+                </div>
                 <button type="submit" class="btn btn-primary w-100 py-3 fs-6">ZALOGUJ SIĘ</button>
             </form>
         </div>
     </div>
 
-    <div id="view-lider" class="view-section card mx-auto mb-5" style="max-width: 850px;">
+    <div id="view-lider" class="view-section card mx-auto mb-5" style="max-width: 900px;">
         <div class="card-header header-primary py-3 d-flex align-items-center">
             <i class="bi bi-plus-circle-dotted fs-5 me-2"></i> Formularz Nowego Zapotrzebowania
         </div>
         <div class="card-body p-4 p-md-5">
             <form id="orderForm" onsubmit="submitOrder(event)">
                 <div class="row g-4">
-                    <div class="col-md-7">
+                    <div class="col-md-5">
                         <label class="form-label fw-bold text-muted small">PRODUKT / NAZWA RZECZY</label>
                         <input type="text" id="produkt" class="form-control" placeholder="Wpisz nazwę..." required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label fw-bold text-muted small">STREFA</label>
                         <select id="strefa" class="form-select" required>
                             <option value="" disabled selected>Wybierz...</option>
@@ -205,41 +163,42 @@
                             <option value="LCDR">LCDR</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold text-muted small">ILOŚĆ & JEDN.</label>
-                        <div class="input-group shadow-sm">
-                            <input type="number" id="ilosc" class="form-control text-center text-primary fw-bold" min="1" value="1" required>
-                            <select id="jednostka" class="form-select bg-light fw-bold text-secondary px-2" style="min-width: 80px;">
+                        <div class="input-group shadow-sm flex-nowrap">
+                            <input type="number" id="ilosc" class="form-control text-center text-primary fw-bold" min="1" value="1" required style="min-width: 60px;">
+                            <select id="jednostka" class="form-select bg-light fw-bold text-secondary px-2" style="width: auto;">
                                 <option value="PCS">PCS</option>
                                 <option value="BOX">BOX</option>
                                 <option value="ML">ML</option>
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <label class="form-label fw-bold text-muted small text-danger">PRIORYTET</label>
                         <select id="priorytet" class="form-select fw-bold">
-                            <option value="Normalny">Normalny</option>
+                            <option value="Normalny">Normal</option>
                             <option value="PILNE">🔥 PILNE</option>
                         </select>
                     </div>
-                    <div class="col-md-8">
-                        <label class="form-label fw-bold text-muted small">SZACOWANA CENA (PLN)</label>
-                        <div class="input-group shadow-sm">
+                    
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small">SZACOWANA CENA</label>
+                        <div class="input-group shadow-sm flex-nowrap">
                             <span class="input-group-text"><i class="bi bi-currency-exchange"></i></span>
-                            <input type="number" id="cena" class="form-control" placeholder="Np. 150.00">
+                            <input type="number" id="cena" class="form-control" placeholder="Np. 150">
                         </div>
                     </div>
-                    <div class="col-12">
+                    <div class="col-md-9">
                         <label class="form-label fw-bold text-muted small">LINK DO SKLEPU</label>
-                        <div class="input-group shadow-sm">
+                        <div class="input-group shadow-sm flex-nowrap">
                             <span class="input-group-text"><i class="bi bi-link-45deg text-primary"></i></span>
                             <input type="url" id="link" class="form-control" placeholder="Wklej pełny adres URL (https://...)" required>
                         </div>
                     </div>
-                    <div class="col-12 mt-4 pt-2 border-top">
-                        <button type="submit" class="btn btn-success float-end px-5 py-2 fs-6">
-                            Wyślij do akceptacji <i class="bi bi-send ms-2"></i>
+                    <div class="col-12 mt-4 pt-2 border-top text-end">
+                        <button type="submit" class="btn btn-success px-5 py-2 fs-6">
+                            Wyślij zapotrzebowanie <i class="bi bi-send ms-2"></i>
                         </button>
                     </div>
                 </div>
@@ -292,7 +251,7 @@
                             <th class="text-center">Link</th>
                             <th class="text-center" style="min-width: 150px;">Status</th>
                             <th>Uwagi / Powód</th>
-                            <th class="text-center" style="min-width: 140px;">Akcja</th>
+                            <th class="text-center" style="min-width: 130px;">Akcja</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
@@ -391,13 +350,11 @@
         try {
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return dateStr; 
-            
             const dzien = String(d.getDate()).padStart(2, '0');
             const miesiac = String(d.getMonth() + 1).padStart(2, '0');
             const rok = d.getFullYear();
             const godziny = String(d.getHours()).padStart(2, '0');
             const minuty = String(d.getMinutes()).padStart(2, '0');
-            
             return `${dzien}.${miesiac}.${rok}<br><small class="text-slate-400" style="color:#94a3b8; font-weight:500;">${godziny}:${minuty}</small>`;
         } catch (e) { return dateStr; }
     }
@@ -407,21 +364,25 @@
         loadData();
     }
 
-    async function editQty(id, oldQty, el) {
+    async function editQty(id, oldQty, btnElement) {
         const newQty = prompt("Wpisz nową ilość:", oldQty);
         if (newQty && newQty != oldQty) {
-            const prevHtml = el.innerHTML;
-            el.innerHTML = '<span class="spinner-border spinner-border-sm" style="width: 1rem; height: 1rem;"></span>';
+            const row = btnElement.closest('tr');
+            const qtyCell = row.querySelector('.qty-cell');
+            const unitBadge = qtyCell.querySelector('.badge-unit').outerHTML; 
+            
+            qtyCell.innerHTML = '<span class="spinner-border spinner-border-sm text-primary" style="width: 1rem; height: 1rem;"></span>';
             try {
                 await fetch(SCRIPT_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ action: 'edit', id: id, newQty: newQty }),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
-                el.innerText = newQty;
+                qtyCell.innerHTML = newQty + unitBadge;
+                btnElement.setAttribute('onclick', `editQty(${id}, ${newQty}, this)`);
             } catch(e) {
                 alert('Błąd: ' + e);
-                el.innerHTML = prevHtml;
+                qtyCell.innerHTML = oldQty + unitBadge;
             }
         }
     }
@@ -501,18 +462,21 @@
             
             let actionButtons = '-';
             
-            // ODBLOKOWANE DLA WSZYSTKICH LIDERÓW DO USUWANIA OCZEKUJĄCYCH
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
                 actionButtons = `
                     <button class="btn btn-sm btn-success w-100 mb-1 rounded-pill" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)"><i class="bi bi-check-lg"></i> Akceptuj</button>
                     <button class="btn btn-sm btn-outline-danger w-100 rounded-pill bg-white" onclick="rejectOrder(${row.id}, this)"><i class="bi bi-x-lg"></i> Odrzuć</button>
                 `;
-            } else if (currentRole === 'lider' && row.status === 'Oczekujące') {
-                actionButtons = `<button class="btn btn-sm btn-outline-danger w-100 rounded-pill" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Anuluj</button>`;
+            } else if (currentRole === 'lider' && row.status === 'Oczekujące' && row.kto === currentUser) {
+                // WIDOCZNY PRZYCISK EDYCJI I USUNIĘCIA DLA WŁAŚCICIELA
+                actionButtons = `
+                    <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill" onclick="editQty(${row.id}, ${row.ilosc}, this)" title="Zmień ilość"><i class="bi bi-pencil-square"></i> Edytuj</button>
+                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill" onclick="deleteOrder(${row.id}, this)" title="Anuluj zapotrzebowanie"><i class="bi bi-trash"></i> Usuń</button>
+                `;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
                 actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill" onclick="updateStatus(${row.id}, 'Zamówione', '', this)"><i class="bi bi-cart-check"></i> Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Odbiór</button>`;
+                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Odbiór paczki</button>`;
             }
 
             let statusColor = "bg-secondary";
@@ -524,17 +488,13 @@
 
             const pBadge = row.priorytet === 'PILNE' ? '<span class="badge badge-urgent me-1">PILNE</span>' : '';
             const cenaWidok = row.cena ? `<span class="price-tag">${row.cena} PLN</span>` : '-';
-            
-            // LIDER MOŻE EDYTOWAĆ ILOŚĆ KAŻDEGO OCZEKUJĄCEGO
-            const canEdit = (currentRole === 'lider' && row.status === 'Oczekujące');
-            const qtyHtml = canEdit ? `<span class="editable-qty" onclick="editQty(${row.id}, ${row.ilosc}, this)" title="Kliknij, aby zmienić">${row.ilosc}</span>` : row.ilosc;
             const jednostkaHtml = `<span class="badge-unit">${row.jednostka || 'PCS'}</span>`;
 
             tr.innerHTML = `
                 <td class="text-center text-muted fw-bold small" style="color: #cbd5e1;">#${lpCounter++}</td>
                 <td class="fw-bold text-dark">${pBadge}${row.produkt}</td>
                 <td class="text-center"><span class="badge bg-light text-dark border border-secondary-subtle px-3 py-2 rounded-pill shadow-sm">${row.strefa}</span></td>
-                <td class="text-center fw-bold fs-6 text-primary">${qtyHtml}${jednostkaHtml}</td>
+                <td class="text-center fw-bold fs-6 text-primary qty-cell">${row.ilosc}${jednostkaHtml}</td>
                 <td class="text-center">${cenaWidok}</td>
                 <td class="text-center align-middle" style="line-height: 1.2;">${formatDate(row.dataZam)}</td>
                 <td class="text-center small fw-medium"><i class="bi bi-person-circle text-primary me-1"></i>${row.kto}</td>
