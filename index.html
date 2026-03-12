@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* --- GŁÓWNE ZMIENNE I TŁO --- */
         :root {
             --primary-glow: rgba(59, 130, 246, 0.4);
             --success-glow: rgba(34, 197, 94, 0.4);
@@ -27,6 +28,7 @@
             overflow-x: hidden;
         }
 
+        /* --- ANIMACJE (FADE IN & GLOW) --- */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(25px); }
             to { opacity: 1; transform: translateY(0); }
@@ -92,6 +94,8 @@
         .form-check-input:checked { background-color: #0f172a; border-color: #0f172a; }
 
         .badge-unit { font-size: 0.7em; background: #e2e8f0; color: #475569; margin-left: 6px; padding: 3px 6px; border-radius: 6px; vertical-align: middle; }
+        .editable-qty { cursor: pointer; text-decoration: underline dashed #cbd5e1; transition: color 0.2s; padding: 2px 5px; }
+        .editable-qty:hover { color: #3b82f6; text-decoration: underline solid #3b82f6; background: rgba(59,130,246,0.1); border-radius: 4px; }
 
         .filters-wrapper { background: #f8fafc; border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
         .search-container input { border-radius: 0 12px 12px 0; border-left: none; }
@@ -344,18 +348,18 @@
         location.reload(); 
     }
 
+    // NAPRAWIONA FUNKCJA DATY - Czysta i uproszczona
     function formatDate(dateStr) {
-        if (!dateStr) return '';
-        if (typeof dateStr === 'string' && dateStr.includes('.')) return dateStr;
+        if (!dateStr) return '-';
         try {
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return dateStr; 
+            
             const dzien = String(d.getDate()).padStart(2, '0');
             const miesiac = String(d.getMonth() + 1).padStart(2, '0');
             const rok = d.getFullYear();
-            const godziny = String(d.getHours()).padStart(2, '0');
-            const minuty = String(d.getMinutes()).padStart(2, '0');
-            return `${dzien}.${miesiac}.${rok}<br><small class="text-slate-400" style="color:#94a3b8; font-weight:500;">${godziny}:${minuty}</small>`;
+            
+            return `${dzien}.${miesiac}.${rok}`; // Zwraca samą prostą datę
         } catch (e) { return dateStr; }
     }
 
@@ -460,6 +464,9 @@
             
             if (row.priorytet === 'PILNE') tr.className = 'row-urgent';
             
+            // NAPRAWA WERYFIKACJI LIDERÓW: Ujednolicanie wielkości liter
+            const czyToWlasciciel = row.kto && currentUser && (row.kto.toLowerCase() === currentUser.toLowerCase());
+
             let actionButtons = '-';
             
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
@@ -467,7 +474,7 @@
                     <button class="btn btn-sm btn-success w-100 mb-1 rounded-pill" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)"><i class="bi bi-check-lg"></i> Akceptuj</button>
                     <button class="btn btn-sm btn-outline-danger w-100 rounded-pill bg-white" onclick="rejectOrder(${row.id}, this)"><i class="bi bi-x-lg"></i> Odrzuć</button>
                 `;
-            } else if (currentRole === 'lider' && row.status === 'Oczekujące' && row.kto === currentUser) {
+            } else if (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel) {
                 // WIDOCZNY PRZYCISK EDYCJI I USUNIĘCIA DLA WŁAŚCICIELA
                 actionButtons = `
                     <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill" onclick="editQty(${row.id}, ${row.ilosc}, this)" title="Zmień ilość"><i class="bi bi-pencil-square"></i> Edytuj</button>
@@ -488,13 +495,17 @@
 
             const pBadge = row.priorytet === 'PILNE' ? '<span class="badge badge-urgent me-1">PILNE</span>' : '';
             const cenaWidok = row.cena ? `<span class="price-tag">${row.cena} PLN</span>` : '-';
+            
+            const qtyHtml = (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel) 
+                            ? `<span class="editable-qty" onclick="editQty(${row.id}, ${row.ilosc}, this)" title="Kliknij, aby zmienić">${row.ilosc}</span>` 
+                            : row.ilosc;
             const jednostkaHtml = `<span class="badge-unit">${row.jednostka || 'PCS'}</span>`;
 
             tr.innerHTML = `
                 <td class="text-center text-muted fw-bold small" style="color: #cbd5e1;">#${lpCounter++}</td>
                 <td class="fw-bold text-dark">${pBadge}${row.produkt}</td>
                 <td class="text-center"><span class="badge bg-light text-dark border border-secondary-subtle px-3 py-2 rounded-pill shadow-sm">${row.strefa}</span></td>
-                <td class="text-center fw-bold fs-6 text-primary qty-cell">${row.ilosc}${jednostkaHtml}</td>
+                <td class="text-center fw-bold fs-6 text-primary qty-cell">${qtyHtml}${jednostkaHtml}</td>
                 <td class="text-center">${cenaWidok}</td>
                 <td class="text-center align-middle" style="line-height: 1.2;">${formatDate(row.dataZam)}</td>
                 <td class="text-center small fw-medium"><i class="bi bi-person-circle text-primary me-1"></i>${row.kto}</td>
