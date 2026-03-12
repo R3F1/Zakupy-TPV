@@ -42,15 +42,11 @@
         }
 
         body { 
-            background-color: var(--bg-color); 
-            color: var(--text-main);
-            font-family: 'Poppins', sans-serif;
-            margin-top: 80px; 
-            overflow-x: hidden;
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Poppins', sans-serif; margin-top: 80px; overflow-x: hidden;
             transition: background-color 0.4s ease, color 0.4s ease;
         }
 
-        /* Tło gradientowe */
         body:not(.dark-mode) {
             background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.04), transparent 30%),
                               radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.04), transparent 30%);
@@ -141,6 +137,7 @@
         .stat-value { font-size: 1.5em; font-weight: 700; line-height: 1; color: var(--text-main);}
         .stat-label { font-size: 0.75em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
 
+        /* --- TOAST --- */
         #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 1050; }
         .custom-toast { background: var(--card-bg); border-radius: 12px; padding: 15px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-left: 4px solid #10b981; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);}
         .custom-toast.show { transform: translateX(0); }
@@ -152,6 +149,18 @@
         .archive-hidden { display: none !important; }
         .filters-wrapper { background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border-color); transition: all 0.4s;}
         
+        /* --- PŁYWAJĄCY PASEK AKCJI GRUPOWYCH (BULK ACTIONS) --- */
+        .bulk-bar {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150px);
+            background: var(--card-bg); border: 1px solid var(--border-color); padding: 12px 25px;
+            border-radius: 50px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); z-index: 1100;
+            display: flex; align-items: center; gap: 20px; opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s;
+        }
+        .bulk-bar.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .form-check-input { cursor: pointer; border-color: #cbd5e1; }
+        .form-check-input:checked { background-color: #3b82f6; border-color: #3b82f6; }
+
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--input-bg); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -168,20 +177,26 @@
     </div>
 </div>
 
+<div id="bulkBar" class="bulk-bar">
+    <div class="d-flex align-items-center border-end pe-3 border-secondary">
+        <span class="badge bg-primary rounded-pill fs-6 me-2" id="bulkCountBadge">0</span>
+        <span class="fw-bold text-muted small">WYBRANO</span>
+    </div>
+    <div id="bulkButtons" class="d-flex gap-2">
+        </div>
+</div>
+
 <nav class="navbar navbar-expand-lg navbar-glass fixed-top py-3">
     <div class="container-fluid px-4">
         <span class="navbar-brand fs-5">
             <i class="bi bi-hexagon-fill brand-icon me-2"></i> SYSTEM ZAMÓWIEŃ <span class="text-primary">TPV</span>
         </span>
-        
         <div id="logoutBar" class="view-section ms-auto">
             <div class="d-flex align-items-center gap-3">
                 <span class="fw-bold small opacity-75" id="userGreeting"></span>
-                
                 <button class="btn btn-sm btn-light border rounded-circle shadow-sm d-flex align-items-center justify-content-center" onclick="toggleDarkMode()" id="darkModeBtn" title="Przełącz motyw" style="width: 36px; height: 36px;">
                     <i class="bi bi-moon-stars"></i>
                 </button>
-                
                 <button class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3" onclick="logout()">
                     <i class="bi bi-power"></i> Wyloguj
                 </button>
@@ -209,14 +224,12 @@
                     <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
                     <input type="password" id="passInput" class="form-control" placeholder="Hasło" required autocomplete="current-password">
                 </div>
-                
                 <div class="form-check text-start mb-4 ms-1">
                     <input class="form-check-input" type="checkbox" id="rememberMe" checked>
                     <label class="form-check-label small fw-bold" style="color: var(--text-main); opacity: 0.8;" for="rememberMe">
                         Zapamiętaj mnie
                     </label>
                 </div>
-
                 <button type="submit" class="btn btn-primary w-100 py-3 fs-6 shadow-sm">ZALOGUJ SIĘ</button>
             </form>
         </div>
@@ -237,9 +250,7 @@
                         <label class="form-label fw-bold text-muted small">STREFA</label>
                         <select id="strefa" class="form-select" required>
                             <option value="" disabled selected>Wybierz...</option>
-                            <option value="OCR">OCR</option>
-                            <option value="LCM">LCM</option>
-                            <option value="LCDR">LCDR</option>
+                            <option value="OCR">OCR</option><option value="LCM">LCM</option><option value="LCDR">LCDR</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -257,7 +268,6 @@
                             <option value="Normalny">Normal</option><option value="PILNE">🔥 PILNE</option>
                         </select>
                     </div>
-                    
                     <div class="col-md-3">
                         <label class="form-label fw-bold text-muted small">SZACOWANA CENA (PLN)</label>
                         <div class="input-group shadow-sm flex-nowrap">
@@ -329,15 +339,18 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
+                            <th class="text-center" style="width: 40px;">
+                                <input class="form-check-input shadow-sm" type="checkbox" id="selectAllCheck" onchange="toggleAllCheckboxes(this)" title="Zaznacz widoczne">
+                            </th>
                             <th class="text-center" style="width: 50px;">#</th>
-                            <th class="sortable" onclick="sortData('produkt')" style="min-width: 250px;">Produkt <i class="bi bi-chevron-expand"></i></th>
-                            <th class="text-center sortable" onclick="sortData('strefa')">Strefa <i class="bi bi-chevron-expand"></i></th>
-                            <th class="text-center sortable" onclick="sortData('ilosc')" style="min-width: 110px;">Ilość <i class="bi bi-chevron-expand"></i></th>
-                            <th class="text-center sortable" onclick="sortData('cena')">Cena <i class="bi bi-chevron-expand"></i></th>
-                            <th class="text-center sortable" onclick="sortData('dataZam')">Data Zgłoszenia <i class="bi bi-chevron-expand"></i></th>
+                            <th class="sortable" onclick="sortData('produkt')" style="min-width: 250px;">Produkt <i class="bi bi-chevron-expand text-secondary"></i></th>
+                            <th class="text-center sortable" onclick="sortData('strefa')">Strefa <i class="bi bi-chevron-expand text-secondary"></i></th>
+                            <th class="text-center sortable" onclick="sortData('ilosc')" style="min-width: 110px;">Ilość <i class="bi bi-chevron-expand text-secondary"></i></th>
+                            <th class="text-center sortable" onclick="sortData('cena')">Cena <i class="bi bi-chevron-expand text-secondary"></i></th>
+                            <th class="text-center sortable" onclick="sortData('dataZam')">Data Zgłoszenia <i class="bi bi-chevron-expand text-secondary"></i></th>
                             <th class="text-center">Zgłasza</th>
                             <th class="text-center">Sklep</th>
-                            <th class="text-center sortable" onclick="sortData('status')" style="min-width: 140px;">Status <i class="bi bi-chevron-expand"></i></th>
+                            <th class="text-center sortable" onclick="sortData('status')" style="min-width: 140px;">Status <i class="bi bi-chevron-expand text-secondary"></i></th>
                             <th style="min-width: 140px;">Uwagi</th>
                             <th class="text-center" style="min-width: 130px;">Akcja</th>
                         </tr>
@@ -369,13 +382,10 @@
     };
 
     window.onload = () => {
-        // DARK MODE CHECK
         if(localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-mode');
             document.getElementById('darkModeBtn').innerHTML = '<i class="bi bi-sun"></i>';
         }
-
-        // POBIERZ SESJĘ LUB LOCALSTORAGE
         const r = localStorage.getItem('userRole') || sessionStorage.getItem('userRole');
         const u = localStorage.getItem('userLogin') || sessionStorage.getItem('userLogin');
         if (r && u) setupInterface(r, u);
@@ -399,20 +409,16 @@
             const ladnaNazwa = users[inputLogin].nazwa;
             
             if (remember) {
-                localStorage.setItem('userRole', rola);
-                localStorage.setItem('userLogin', ladnaNazwa);
+                localStorage.setItem('userRole', rola); localStorage.setItem('userLogin', ladnaNazwa);
             } else {
-                sessionStorage.setItem('userRole', rola);
-                sessionStorage.setItem('userLogin', ladnaNazwa);
+                sessionStorage.setItem('userRole', rola); sessionStorage.setItem('userLogin', ladnaNazwa);
             }
             
             setupInterface(rola, ladnaNazwa);
             showToast('Zalogowano pomyślnie!', 'success');
         } else {
             const card = document.getElementById('view-login');
-            card.style.transform = 'translateX(-10px)';
-            setTimeout(() => card.style.transform = 'translateX(10px)', 100);
-            setTimeout(() => card.style.transform = 'translateX(0)', 200);
+            card.style.transform = 'translateX(-10px)'; setTimeout(() => card.style.transform = 'translateX(10px)', 100); setTimeout(() => card.style.transform = 'translateX(0)', 200);
             showToast('Błędny identyfikator lub hasło!', 'danger');
         }
     });
@@ -420,21 +426,15 @@
     function setupInterface(role, login) {
         currentRole = role; currentUser = login;
         document.querySelectorAll('.view-section').forEach(el => { el.classList.remove('active-view'); });
-        
         document.getElementById('logoutBar').classList.add('active-view');
         document.getElementById('userGreeting').innerHTML = `<i class="bi bi-person-circle text-primary"></i> ${login}`;
-        
         document.getElementById('view-table').classList.add('active-view');
         if (currentRole === 'lider') document.getElementById('view-lider').classList.add('active-view');
         loadData();
     }
 
     function logout() { 
-        localStorage.removeItem('userRole'); 
-        localStorage.removeItem('userLogin'); 
-        sessionStorage.removeItem('userRole'); 
-        sessionStorage.removeItem('userLogin'); 
-        location.reload(); 
+        localStorage.clear(); sessionStorage.clear(); location.reload(); 
     }
 
     function showToast(msg, type='success') {
@@ -464,21 +464,12 @@
     function toggleArchive() { showArchive = document.getElementById('archiveSwitch').checked; renderTable(globalData); }
 
     function sortData(key) {
-        if(sortCol === key) sortAsc = !sortAsc;
-        else { sortCol = key; sortAsc = true; }
-
+        if(sortCol === key) sortAsc = !sortAsc; else { sortCol = key; sortAsc = true; }
         globalData.sort((a, b) => {
-            let valA = a[key] !== undefined ? a[key] : '';
-            let valB = b[key] !== undefined ? b[key] : '';
-
-            if(key === 'ilosc' || key === 'cena') {
-                valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0;
-            } else if(key === 'dataZam') {
-                valA = new Date(valA).getTime() || 0; valB = new Date(valB).getTime() || 0;
-            } else {
-                valA = String(valA).toLowerCase(); valB = String(valB).toLowerCase();
-            }
-
+            let valA = a[key] !== undefined ? a[key] : ''; let valB = b[key] !== undefined ? b[key] : '';
+            if(key === 'ilosc' || key === 'cena') { valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0; } 
+            else if(key === 'dataZam') { valA = new Date(valA).getTime() || 0; valB = new Date(valB).getTime() || 0; } 
+            else { valA = String(valA).toLowerCase(); valB = String(valB).toLowerCase(); }
             if(valA < valB) return sortAsc ? -1 : 1;
             if(valA > valB) return sortAsc ? 1 : -1;
             return 0;
@@ -503,16 +494,14 @@
                 if(rowData) rowData.ilosc = newQty;
                 showToast('Zaktualizowano ilość!');
             } catch(e) {
-                showToast('Błąd aktualizacji', 'danger');
-                qtyValCell.innerText = oldQty;
+                showToast('Błąd aktualizacji', 'danger'); qtyValCell.innerText = oldQty;
             }
         }
     }
 
     async function submitOrder(e) {
         e.preventDefault();
-        const btn = e.target.querySelector('button');
-        const originalText = btn.innerHTML;
+        const btn = e.target.querySelector('button'); const originalText = btn.innerHTML;
         btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wysyłanie...';
 
         const data = {
@@ -531,9 +520,10 @@
     }
 
     async function loadData() {
+        document.getElementById('selectAllCheck').checked = false; updateBulkBar(); // Reset bulk
         const tbody = document.getElementById('ordersTableBody');
         let skeletonHtml = '';
-        for(let i=0; i<6; i++) skeletonHtml += `<tr><td colspan="11" class="py-3"><div class="skeleton-box"></div></td></tr>`;
+        for(let i=0; i<6; i++) skeletonHtml += `<tr><td colspan="12" class="py-3"><div class="skeleton-box"></div></td></tr>`;
         tbody.innerHTML = skeletonHtml;
         
         try {
@@ -545,8 +535,95 @@
             const allBtn = document.querySelector('#statusFilters button');
             if(allBtn && !document.getElementById('searchInput').value) filterByStatus('wszystkie', allBtn);
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="11" class="text-danger text-center py-5 fw-bold">Błąd połączenia z bazą Google.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="12" class="text-danger text-center py-5 fw-bold">Błąd połączenia z bazą Google.</td></tr>';
         }
+    }
+
+    // --- LOGIKA AKCJI GRUPOWYCH (BULK) ---
+    function toggleAllCheckboxes(masterCheckbox) {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => {
+            // Zaznaczaj tylko widoczne wiersze
+            if (cb.closest('tr').style.display !== 'none') {
+                cb.checked = masterCheckbox.checked;
+            }
+        });
+        updateBulkBar();
+    }
+
+    function updateBulkBar() {
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        const bulkBar = document.getElementById('bulkBar');
+        const bulkCount = document.getElementById('bulkCountBadge');
+        const btnContainer = document.getElementById('bulkButtons');
+        
+        bulkCount.innerText = checked.length;
+
+        if(checked.length > 0) {
+            let buttonsHtml = '';
+            if (currentRole === 'kierownik') {
+                buttonsHtml = `
+                    <button class="btn btn-success rounded-pill shadow-sm" onclick="executeBulk('Zaakceptowane')"><i class="bi bi-check-all"></i> Akceptuj Wybrane</button>
+                    <button class="btn btn-outline-danger rounded-pill shadow-sm bg-white" onclick="executeBulk('Odrzucone')">Odrzuć Wybrane</button>`;
+            } else if (currentRole === 'lukasz') {
+                buttonsHtml = `
+                    <button class="btn btn-primary rounded-pill shadow-sm" onclick="executeBulk('Zamówione')"><i class="bi bi-cart-check"></i> Oznacz Kupione</button>
+                    <button class="btn btn-info text-white rounded-pill shadow-sm" onclick="executeBulk('Dostarczone')"><i class="bi bi-box-seam"></i> Odbiór Paczek</button>`;
+            } else if (currentRole === 'lider') {
+                buttonsHtml = `<button class="btn btn-danger rounded-pill shadow-sm" onclick="executeBulk('delete')"><i class="bi bi-trash"></i> Usuń Wybrane</button>`;
+            }
+            btnContainer.innerHTML = buttonsHtml;
+            bulkBar.classList.add('show');
+        } else {
+            bulkBar.classList.remove('show');
+            document.getElementById('selectAllCheck').checked = false;
+        }
+    }
+
+    async function executeBulk(actionType) {
+        const checks = document.querySelectorAll('.row-checkbox:checked');
+        if(checks.length === 0) return;
+
+        let reason = '';
+        if(actionType === 'Odrzucone') {
+            reason = prompt("Podaj powód odrzucenia dla wszystkich zaznaczonych pozycji:");
+            if(reason === null) return;
+        } else if (actionType === 'delete') {
+            if(!confirm(`Na pewno chcesz anulować ${checks.length} zgłoszeń?`)) return;
+        } else {
+            if(!confirm(`Zmienić status ${checks.length} zgłoszeń na: ${actionType}?`)) return;
+        }
+
+        const btnContainer = document.getElementById('bulkButtons');
+        btnContainer.innerHTML = `<span class="spinner-border spinner-border-sm text-primary"></span><span class="ms-2 fw-bold text-primary">Przetwarzanie...</span>`;
+
+        // Przetwarzanie sekwencyjne dla bezpieczeństwa bazy Google Sheet
+        for(let check of checks) {
+            const id = check.value;
+            const row = check.closest('tr');
+            row.style.opacity = '0.4';
+            row.style.pointerEvents = 'none';
+
+            try {
+                if(actionType === 'delete') {
+                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id: id }) });
+                    globalData = globalData.filter(r => r.id != id);
+                    row.remove();
+                } else {
+                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'update', id: id, newStatus: actionType, reason: reason }) });
+                    let rowData = globalData.find(r => r.id == id);
+                    if(rowData) { rowData.status = actionType; rowData.powod = reason; }
+                    // Update wizualny na żywo
+                    row.querySelector('.status-col').innerHTML = `<span class="badge badge-soft-warning">${actionType}</span>`; // Uproszczony wizualnie, po re-renderze dostanie pełny kolor
+                    row.style.opacity = '1';
+                }
+            } catch(e) { console.error('Błąd dla ID', id); }
+        }
+
+        showToast('Zakończono akcję grupową!', 'success');
+        document.getElementById('selectAllCheck').checked = false;
+        updateBulkBar();
+        renderTable(globalData, false); // Odświeżenie widoku ze statystykami
     }
 
     function renderTable(dataArray, applyReverse = false) {
@@ -571,20 +648,29 @@
             if (row.priorytet === 'PILNE') tr.className = 'row-urgent';
             
             const czyToWlasciciel = row.kto && currentUser && (row.kto.toLowerCase() === currentUser.toLowerCase());
-            let actionButtons = '-';
+            
+            // CHECKBOX DO AKCJI GRUPOWYCH
+            let checkboxHtml = '';
+            if ((currentRole === 'kierownik' && row.status === 'Oczekujące') ||
+                (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel) ||
+                (currentRole === 'lukasz' && (row.status === 'Zaakceptowane' || row.status === 'Zamówione'))) {
+                checkboxHtml = `<input class="form-check-input row-checkbox shadow-sm" type="checkbox" value="${row.id}" onchange="updateBulkBar()">`;
+            } else {
+                checkboxHtml = `<input class="form-check-input" type="checkbox" disabled style="opacity: 0.3;">`;
+            }
 
+            let actionButtons = '-';
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
                 actionButtons = `<button class="btn btn-sm btn-success w-100 mb-1 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)">Akceptuj</button>
                                  <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm" style="background:var(--card-bg);" onclick="rejectOrder(${row.id}, this)">Odrzuć</button>`;
             } else if (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel) {
                 actionButtons = `
                     <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill shadow-sm" onclick="editQty(${row.id}, ${row.ilosc}, this)"><i class="bi bi-pencil-square"></i> Edytuj</button>
-                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm mb-1" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Usuń</button>
-                `;
+                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Usuń</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
                 actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zamówione', '', this)">Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Odbiór</button>`;
+                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Odbiór paczki</button>`;
             }
 
             let sClass = "badge-soft-secondary";
@@ -595,13 +681,10 @@
 
             const pBadge = row.priorytet === 'PILNE' ? '<span class="badge-urgent">PILNE</span>' : '';
             const cenaWidok = row.cena ? `<span class="price-tag">${row.cena} zł</span>` : '-';
-            
-            const qtyHtml = `<div class="qty-container">
-                                <div class="qty-val fw-bold text-primary">${row.ilosc}</div>
-                                <div class="unit-box"><span class="badge-unit">${row.jednostka || 'PCS'}</span></div>
-                             </div>`;
+            const qtyHtml = `<div class="qty-container"><div class="qty-val fw-bold text-primary">${row.ilosc}</div><div class="unit-box"><span class="badge-unit">${row.jednostka || 'PCS'}</span></div></div>`;
 
             tr.innerHTML = `
+                <td class="text-center">${checkboxHtml}</td>
                 <td class="text-center text-muted small">${row.id-1}</td>
                 <td><div class="d-flex align-items-center">${pBadge}<span class="fw-bolder" style="font-size: 1.05em;">${row.produkt}</span></div></td>
                 <td class="text-center"><span class="badge" style="background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-color);">${row.strefa}</span></td>
@@ -615,7 +698,7 @@
                         <button class="btn btn-sm btn-light border text-secondary px-2" onclick="copyToClipboard('${row.link}')" title="Kopiuj link"><i class="bi bi-clipboard"></i></button>
                     </div>
                 </td>
-                <td class="text-center"><span class="badge ${sClass}">${row.status}</span></td>
+                <td class="text-center status-col"><span class="badge ${sClass}">${row.status}</span></td>
                 <td class="powod-text small">${row.powod}</td>
                 <td class="text-center align-middle px-2">${actionButtons}</td>
             `;
@@ -623,11 +706,7 @@
         });
 
         if(visibleCount === 0) {
-            tbody.innerHTML = `<tr id="emptyStateRow"><td colspan="11" class="empty-state">
-                <i class="bi bi-inbox text-secondary"></i>
-                <h5>Brak zamówień do wyświetlenia</h5>
-                <p class="small">Lista jest pusta lub odfiltrowana.</p>
-            </td></tr>`;
+            tbody.innerHTML = `<tr id="emptyStateRow"><td colspan="12" class="empty-state"><i class="bi bi-inbox text-secondary"></i><h5>Brak zamówień do wyświetlenia</h5><p class="small">Lista jest pusta lub odfiltrowana.</p></td></tr>`;
         }
 
         document.getElementById('stat-oczekujace').innerText = statOczek;
@@ -636,13 +715,9 @@
         document.getElementById('stat-dostarczone').innerText = statDost;
 
         let totalActive = statOczek + statZaakc + statZamow + statDost;
-        let pOczek = totalActive ? (statOczek / totalActive * 100) : 0;
-        let pWTok = totalActive ? ((statZaakc + statZamow) / totalActive * 100) : 0;
-        let pDost = totalActive ? (statDost / totalActive * 100) : 0;
-
-        document.getElementById('pb-oczek').style.width = pOczek + '%';
-        document.getElementById('pb-w-trakcie').style.width = pWTok + '%';
-        document.getElementById('pb-dost').style.width = pDost + '%';
+        document.getElementById('pb-oczek').style.width = (totalActive ? (statOczek / totalActive * 100) : 0) + '%';
+        document.getElementById('pb-w-trakcie').style.width = (totalActive ? ((statZaakc + statZamow) / totalActive * 100) : 0) + '%';
+        document.getElementById('pb-dost').style.width = (totalActive ? (statDost / totalActive * 100) : 0) + '%';
     }
 
     function filterByStatus(statusName, btnElement) {
@@ -668,6 +743,11 @@
             }
         });
         checkEmptyState(visibleCount);
+        
+        // Zawsze czyść i ukrywaj pasek grupowy przy zmianie filtra
+        document.getElementById('selectAllCheck').checked = false;
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+        updateBulkBar();
     }
 
     document.getElementById('searchInput').addEventListener('keyup', function() {
@@ -690,7 +770,7 @@
         let tbody = document.getElementById('ordersTableBody');
         if(count === 0) {
             if(!emptyRow) {
-                tbody.insertAdjacentHTML('beforeend', `<tr id="emptyStateRow"><td colspan="11" class="empty-state"><i class="bi bi-search text-secondary"></i><h5>Brak wyników</h5><p class="small">Nie znaleziono pasujących rekordów.</p></td></tr>`);
+                tbody.insertAdjacentHTML('beforeend', `<tr id="emptyStateRow"><td colspan="12" class="empty-state"><i class="bi bi-search text-secondary"></i><h5>Brak wyników</h5><p class="small">Nie znaleziono pasujących rekordów.</p></td></tr>`);
             } else { emptyRow.style.display = ""; }
         } else {
             if(emptyRow) emptyRow.style.display = "none";
@@ -728,10 +808,10 @@
                 if(stat === 'Dostarczone') sClass = "badge-soft-success";
                 if(stat === 'Odrzucone') sClass = "badge-soft-danger";
 
-                row.querySelector('td:nth-child(9)').innerHTML = `<span class="badge ${sClass}">${stat}</span>`;
+                row.querySelector('.status-col').innerHTML = `<span class="badge ${sClass}">${stat}</span>`;
                 row.setAttribute('data-status', stat.toLowerCase());
-                if (stat === 'Odrzucone') row.querySelector('td:nth-child(10)').innerText = reason;
-                row.querySelector('td:nth-child(11)').innerHTML = '<span class="badge bg-light text-success border border-success"><i class="bi bi-check-all"></i> Gotowe</span>';
+                if (stat === 'Odrzucone') row.querySelector('td:nth-child(11)').innerText = reason;
+                row.querySelector('td:nth-child(12)').innerHTML = '<span class="badge bg-light text-success border border-success"><i class="bi bi-check-all"></i> Gotowe</span>';
 
                 row.style.opacity = '1'; row.style.pointerEvents = 'auto';
                 
