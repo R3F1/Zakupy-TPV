@@ -9,51 +9,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- GŁÓWNE ZMIENNE --- */
+        /* --- GŁÓWNE ZMIENNE I TŁO --- */
         :root {
             --primary-glow: rgba(59, 130, 246, 0.4);
             --bg-color: #f4f7fb; 
             --urgent-red: #ef4444;
-            --text-main: #1e293b;
-            --card-bg: rgba(255, 255, 255, 1);
-            --glass-bg: rgba(255, 255, 255, 0.9);
-            --input-bg: #f8fafc;
-            --border-color: #e2e8f0;
-            --table-hover: #f0f9ff;
-            --table-zebra: rgba(241, 245, 249, 0.4);
-            --unit-bg: #e2e8f0;
-            --shadow-color: rgba(0, 0, 0, 0.05);
-            --skeleton-grad: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
         }
-
-        /* --- TRYB CIEMNY (DARK MODE) --- */
-        body.dark-mode {
-            --bg-color: #0f172a;
-            --text-main: #f8fafc;
-            --card-bg: #1e293b;
-            --glass-bg: rgba(15, 23, 42, 0.9);
-            --input-bg: #0f172a;
-            --border-color: #334155;
-            --table-hover: #334155;
-            --table-zebra: rgba(255, 255, 255, 0.02);
-            --unit-bg: #334155;
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --skeleton-grad: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
-        }
-
+        
         body { 
             background-color: var(--bg-color); 
-            color: var(--text-main);
+            background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.04), transparent 30%),
+                              radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.04), transparent 30%);
+            color: #1e293b;
             font-family: 'Poppins', sans-serif;
             margin-top: 80px; 
             overflow-x: hidden;
-            transition: background-color 0.4s ease, color 0.4s ease;
-        }
-
-        /* Tło gradientowe (ukrywane w trybie ciemnym dla lepszego kontrastu) */
-        body:not(.dark-mode) {
-            background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.04), transparent 30%),
-                              radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.04), transparent 30%);
         }
 
         /* --- ANIMACJE --- */
@@ -66,103 +36,77 @@
 
         /* --- NAVBAR --- */
         .navbar-glass {
-            background: var(--glass-bg);
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 4px 30px var(--shadow-color); border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.4s, border-color 0.4s;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03); border-bottom: 1px solid rgba(255, 255, 255, 0.5);
         }
-        .navbar-brand { color: var(--text-main) !important; font-weight: 700; letter-spacing: 0.5px; }
+        .navbar-brand { color: #0f172a !important; font-weight: 700; letter-spacing: 0.5px; }
         .brand-icon { color: #3b82f6; text-shadow: 0 0 10px var(--primary-glow); }
 
         /* --- KARTY --- */
         .card { 
-            border: 1px solid var(--border-color); border-radius: 20px; background: var(--card-bg);
-            box-shadow: 0 10px 40px var(--shadow-color); transition: all 0.4s ease;
+            border: none; border-radius: 20px; background: rgba(255, 255, 255, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05); transition: box-shadow 0.3s ease;
         }
         .card-header { border-radius: 20px 20px 0 0 !important; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-size: 0.85em; padding: 1.2rem; border-bottom: none; }
         .header-primary { background: linear-gradient(135deg, #3b82f6, #0ea5e9); color: white; }
         .header-dark { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; }
 
         /* --- INPUTY I PRZYCISKI --- */
-        .form-control, .form-select { 
-            border-radius: 12px; border: 1px solid var(--border-color); padding: 0.75rem 1rem; 
-            background-color: var(--input-bg); color: var(--text-main); font-size: 0.95em; transition: all 0.3s ease;
-        }
-        .form-control:focus, .form-select:focus { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); border-color: #3b82f6; background-color: var(--card-bg); color: var(--text-main); }
-        .input-group-text { border-radius: 12px 0 0 12px; border: 1px solid var(--border-color); border-right: none; background: var(--input-bg); color: var(--text-main); transition: all 0.3s ease;}
-        
+        .form-control, .form-select { border-radius: 12px; border: 1px solid #e2e8f0; padding: 0.75rem 1rem; background-color: #f8fafc; font-size: 0.95em; }
+        .form-control:focus, .form-select:focus { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); border-color: #3b82f6; background-color: #ffffff; }
+        .input-group-text { border-radius: 12px 0 0 12px; border: 1px solid #e2e8f0; border-right: none; background: #f8fafc; }
         .btn { border-radius: 12px; font-weight: 600; padding: 0.6rem 1.2rem; transition: all 0.2s; letter-spacing: 0.5px; }
         .btn:hover { transform: translateY(-2px); }
 
         /* --- TABELA (Premium UI) --- */
         .table-responsive { max-height: 65vh; overflow-y: auto; border-radius: 12px; }
-        .table { margin-bottom: 0; color: var(--text-main); }
-        .table thead th { background-color: var(--input-bg); border-bottom: 2px solid var(--border-color); color: #64748b; text-transform: uppercase; font-size: 0.75em; padding: 1rem; position: sticky; top: 0; z-index: 10; transition: background-color 0.4s; }
-        
-        /* Sortowanie nagłówków */
-        .sortable { cursor: pointer; transition: color 0.2s; }
-        .sortable:hover { color: #3b82f6; }
-        
-        .table tbody td { vertical-align: middle; font-size: 0.9em; padding: 1rem 0.5rem; border-bottom: 1px solid var(--border-color); transition: background 0.2s; }
-        .table-hover tbody tr:nth-of-type(odd) td { background-color: var(--table-zebra); } 
-        .table-hover tbody tr:hover td { background-color: var(--table-hover); }
+        .table { margin-bottom: 0; }
+        .table thead th { background-color: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #64748b; text-transform: uppercase; font-size: 0.75em; padding: 1rem; position: sticky; top: 0; z-index: 10; }
+        .table tbody td { vertical-align: middle; font-size: 0.9em; padding: 1rem 0.5rem; border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
+        .table-hover tbody tr:nth-of-type(odd) { background-color: rgba(241, 245, 249, 0.4); } 
+        .table-hover tbody tr:hover td { background-color: #f0f9ff; }
         
         .powod-text { max-width: 180px; font-size: 0.85em; color: #ef4444; font-style: italic; line-height: 1.3; }
-        .price-tag { color: #0ea5e9; font-weight: 700; font-family: monospace; font-size: 1.1em;}
+        .price-tag { color: #0891b2; font-weight: 700; font-family: monospace; font-size: 1.1em;}
 
         /* --- SOFT BADGES (Statusy) --- */
         .badge { padding: 0.6em 1em; font-size: 0.75em; border-radius: 8px; font-weight: 700; letter-spacing: 0.3px; display: inline-block; width: 100%; text-align: center;}
-        .badge-soft-secondary { background-color: rgba(148, 163, 184, 0.15); color: #64748b; } 
-        .badge-soft-warning { background-color: rgba(245, 158, 11, 0.15); color: #d97706; } 
-        .badge-soft-primary { background-color: rgba(59, 130, 246, 0.15); color: #2563eb; } 
-        .badge-soft-success { background-color: rgba(34, 197, 94, 0.15); color: #16a34a; } 
-        .badge-soft-danger { background-color: rgba(239, 68, 68, 0.15); color: #dc2626; } 
-        
-        body.dark-mode .badge-soft-secondary { color: #94a3b8; }
-        body.dark-mode .badge-soft-primary { color: #60a5fa; }
-        body.dark-mode .badge-soft-success { color: #4ade80; }
-        body.dark-mode .badge-soft-warning { color: #fbbf24; }
+        .badge-soft-secondary { background-color: #f1f5f9; color: #475569; } 
+        .badge-soft-warning { background-color: #fef3c7; color: #b45309; } 
+        .badge-soft-primary { background-color: #dbeafe; color: #1d4ed8; } 
+        .badge-soft-success { background-color: #dcfce3; color: #15803d; } 
+        .badge-soft-danger { background-color: #fee2e2; color: #b91c1c; } 
 
-        /* --- ILOŚĆ I JEDNOSTKI (Grid) --- */
+        /* --- ILOŚĆ I JEDNOSTKI (Idealne wyrównanie Grid) --- */
         .qty-container { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; max-width: 80px; margin: 0 auto; }
         .qty-val { text-align: right; font-size: 1.1em; }
         .unit-box { text-align: left; }
-        .badge-unit { font-size: 0.75em; background: var(--unit-bg); color: var(--text-main); padding: 3px 6px; border-radius: 6px; font-weight: 600; display: inline-block; transition: background 0.4s;}
-        .editable-qty { cursor: pointer; text-decoration: underline dashed #cbd5e1; font-size: 1.1em; padding: 2px 6px; border-radius: 6px; transition: all 0.2s;}
-        .editable-qty:hover { color: #3b82f6; text-decoration: underline solid #3b82f6; background: rgba(59,130,246,0.1); }
+        .badge-unit { font-size: 0.75em; background: #e2e8f0; color: #475569; padding: 3px 6px; border-radius: 6px; font-weight: 600; display: inline-block; }
 
         /* --- PRIORYTET --- */
         .row-urgent { background-color: rgba(239, 68, 68, 0.04) !important; border-left: 4px solid var(--urgent-red) !important; }
-        body.dark-mode .row-urgent { background-color: rgba(239, 68, 68, 0.1) !important; }
         .badge-urgent { background-color: var(--urgent-red); color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.7em; animation: pulseUrgent 2s infinite; margin-right: 8px;}
 
-        /* --- STATYSTYKI --- */
-        .stat-card { background: var(--card-bg); border-radius: 16px; padding: 15px 20px; box-shadow: 0 4px 15px var(--shadow-color); display: flex; align-items: center; gap: 15px; border: 1px solid var(--border-color); transition: transform 0.2s, background 0.4s;}
+        /* --- STATYSTYKI (Dashboard) --- */
+        .stat-card { background: white; border-radius: 16px; padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 15px; border: 1px solid #f1f5f9; transition: transform 0.2s;}
         .stat-card:hover { transform: translateY(-2px); }
         .stat-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 1.3em; }
-        .stat-value { font-size: 1.5em; font-weight: 700; line-height: 1; color: var(--text-main);}
+        .stat-value { font-size: 1.5em; font-weight: 700; line-height: 1; color: #0f172a;}
         .stat-label { font-size: 0.75em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
 
-        /* --- TOAST --- */
+        /* --- TOAST POWIADOMIENIA --- */
         #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 1050; }
-        .custom-toast { background: var(--card-bg); border-radius: 12px; padding: 15px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-left: 4px solid #10b981; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);}
+        .custom-toast { background: white; border-radius: 12px; padding: 15px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-left: 4px solid #10b981; }
         .custom-toast.show { transform: translateX(0); }
 
         /* --- SKELETON LOADER --- */
-        .skeleton-box { height: 20px; background: var(--skeleton-grad); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
-
-        /* --- EMPTY STATE --- */
-        .empty-state { text-align: center; padding: 3rem 1rem; color: #94a3b8; opacity: 0.7; animation: fadeInUp 0.4s ease; }
-        .empty-state i { font-size: 4rem; display: block; margin-bottom: 1rem; }
+        .skeleton-box { height: 20px; background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
 
         .archive-hidden { display: none !important; }
-        
-        .filters-wrapper { background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border-color); transition: all 0.4s;}
-        
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--input-bg); border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        body.dark-mode ::-webkit-scrollbar-thumb { background: #475569; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
@@ -171,7 +115,7 @@
 <div id="toastContainer">
     <div id="actionToast" class="custom-toast">
         <i class="bi bi-check-circle-fill text-success fs-4"></i>
-        <div class="fw-bold" style="color: var(--text-main);" id="toastMessage">Akcja wykonana pomyślnie!</div>
+        <div class="fw-bold text-dark" id="toastMessage">Akcja wykonana pomyślnie!</div>
     </div>
 </div>
 
@@ -180,13 +124,8 @@
         <span class="navbar-brand fs-5">
             <i class="bi bi-hexagon-fill brand-icon me-2"></i> SYSTEM ZAMÓWIEŃ <span class="text-primary">TPV</span>
         </span>
-        <div id="logoutBar" class="view-section text-end d-flex align-items-center gap-3">
-            <span class="fw-bold small opacity-75" id="userGreeting"></span>
-            
-            <button class="btn btn-sm btn-light border rounded-circle shadow-sm" onclick="toggleDarkMode()" id="darkModeBtn" title="Przełącz motyw" style="width: 32px; height: 32px;">
-                <i class="bi bi-moon-stars"></i>
-            </button>
-            
+        <div id="logoutBar" class="view-section text-end">
+            <span class="me-3 fw-bold text-secondary small" id="userGreeting"></span>
             <button class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3" onclick="logout()">
                 <i class="bi bi-power"></i> Wyloguj
             </button>
@@ -242,7 +181,7 @@
                         <label class="form-label fw-bold text-muted small">ILOŚĆ & JEDN.</label>
                         <div class="input-group shadow-sm flex-nowrap">
                             <input type="number" id="ilosc" class="form-control text-center text-primary fw-bold" min="1" value="1" required style="min-width: 60px;">
-                            <select id="jednostka" class="form-select fw-bold text-secondary px-2" style="width: auto;">
+                            <select id="jednostka" class="form-select bg-light fw-bold text-secondary px-2" style="width: auto;">
                                 <option value="PCS">PCS</option><option value="BOX">BOX</option><option value="ML">ML</option>
                             </select>
                         </div>
@@ -292,9 +231,9 @@
             </div>
         </div>
         
-        <div class="card-body p-4 rounded-bottom" style="background-color: transparent;">
+        <div class="card-body p-4 bg-light rounded-bottom">
             
-            <div class="row g-3 mb-3" id="statsDashboard">
+            <div class="row g-3 mb-4" id="statsDashboard">
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="stat-icon bg-secondary bg-opacity-10 text-secondary"><i class="bi bi-hourglass-split"></i></div>
@@ -321,39 +260,33 @@
                 </div>
             </div>
 
-            <div class="progress mb-4 shadow-sm" style="height: 6px; border-radius: 10px; background-color: var(--input-bg);">
-                <div id="pb-oczek" class="progress-bar bg-secondary" style="width: 0%" title="Oczekujące"></div>
-                <div id="pb-w-trakcie" class="progress-bar bg-primary" style="width: 0%" title="Zaakceptowane i Zamówione"></div>
-                <div id="pb-dost" class="progress-bar bg-success" style="width: 0%" title="Dostarczone"></div>
-            </div>
-
-            <div class="filters-wrapper d-flex flex-wrap justify-content-between align-items-center gap-3 shadow-sm border-0">
+            <div class="filters-wrapper d-flex flex-wrap justify-content-between align-items-center gap-3 bg-white shadow-sm border-0">
                 <div class="d-flex gap-2 flex-wrap" id="statusFilters">
-                    <span class="text-secondary small fw-bold mt-2 me-2 d-none d-md-block"><i class="bi bi-funnel"></i> FILTRY:</span>
+                    <span class="text-slate-400 small fw-bold mt-2 me-2 d-none d-md-block"><i class="bi bi-funnel"></i> FILTRY:</span>
                     <button class="btn btn-dark btn-sm active rounded-pill px-3" onclick="filterByStatus('wszystkie', this)">Wszystkie</button>
                     <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-0 bg-secondary bg-opacity-10" onclick="filterByStatus('oczekujące', this)">Oczekujące</button>
                     <button class="btn btn-outline-warning btn-sm rounded-pill px-3 border-0 bg-warning bg-opacity-10" onclick="filterByStatus('zaakceptowane', this)">Zaakceptowane</button>
                     <button class="btn btn-outline-primary btn-sm rounded-pill px-3 border-0 bg-primary bg-opacity-10" onclick="filterByStatus('zamówione', this)">Zamówione</button>
                 </div>
                 <div class="input-group search-container shadow-sm" style="max-width: 280px;">
-                    <span class="input-group-text border-0"><i class="bi bi-search"></i></span>
-                    <input type="text" id="searchInput" class="form-control border-0" placeholder="Szukaj po nazwie...">
+                    <span class="input-group-text border-0 bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control border-0 bg-light" placeholder="Szukaj po nazwie...">
                 </div>
             </div>
 
-            <div class="table-responsive border shadow-sm" style="background-color: var(--card-bg); border-color: var(--border-color) !important;">
+            <div class="table-responsive bg-white border border-light shadow-sm">
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 50px;">#</th>
-                            <th class="sortable" onclick="sortData('produkt')" style="min-width: 250px;">Produkt <i class="bi bi-chevron-expand"></i></th>
-                            <th class="text-center sortable" onclick="sortData('strefa')">Strefa <i class="bi bi-chevron-expand"></i></th>
-                            <th class="text-center sortable" onclick="sortData('ilosc')" style="min-width: 110px;">Ilość <i class="bi bi-chevron-expand"></i></th>
-                            <th class="text-center sortable" onclick="sortData('cena')">Cena <i class="bi bi-chevron-expand"></i></th>
-                            <th class="text-center sortable" onclick="sortData('dataZam')">Data Zgłoszenia <i class="bi bi-chevron-expand"></i></th>
+                            <th style="min-width: 250px;">Produkt</th>
+                            <th class="text-center">Strefa</th>
+                            <th class="text-center" style="min-width: 110px;">Ilość</th>
+                            <th class="text-center">Cena</th>
+                            <th class="text-center">Data Zgłoszenia</th>
                             <th class="text-center">Zgłasza</th>
                             <th class="text-center">Sklep</th>
-                            <th class="text-center sortable" onclick="sortData('status')" style="min-width: 140px;">Status <i class="bi bi-chevron-expand"></i></th>
+                            <th class="text-center" style="min-width: 140px;">Status</th>
                             <th style="min-width: 140px;">Uwagi</th>
                             <th class="text-center" style="min-width: 130px;">Akcja</th>
                         </tr>
@@ -372,9 +305,6 @@
     let currentRole = 'none';
     let currentUser = '';
     let showArchive = false; 
-    let globalData = []; // Bufor danych do sortowania
-    let sortCol = '';
-    let sortAsc = true;
 
     const users = {
         'lider lcm': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCM' },
@@ -385,22 +315,9 @@
     };
 
     window.onload = () => {
-        // DARK MODE CHECK
-        if(localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('darkModeBtn').innerHTML = '<i class="bi bi-sun"></i>';
-        }
-
         const r = localStorage.getItem('userRole'), u = localStorage.getItem('userLogin');
         if (r && u) setupInterface(r, u);
     };
-
-    function toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        document.getElementById('darkModeBtn').innerHTML = isDark ? '<i class="bi bi-sun"></i>' : '<i class="bi bi-moon-stars"></i>';
-    }
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -419,7 +336,7 @@
             card.style.transform = 'translateX(-10px)';
             setTimeout(() => card.style.transform = 'translateX(10px)', 100);
             setTimeout(() => card.style.transform = 'translateX(0)', 200);
-            showToast('Błędny identyfikator lub hasło!', 'danger');
+            alert('Błędny identyfikator lub hasło!');
         }
     });
 
@@ -433,21 +350,25 @@
         loadData();
     }
 
-    function logout() { localStorage.removeItem('userRole'); localStorage.removeItem('userLogin'); location.reload(); }
+    function logout() { localStorage.clear(); location.reload(); }
 
     function showToast(msg, type='success') {
         const toast = document.getElementById('actionToast');
         const msgEl = document.getElementById('toastMessage');
         const icon = toast.querySelector('i');
+        
         msgEl.innerText = msg;
         toast.style.borderLeftColor = type === 'danger' ? '#ef4444' : '#10b981';
         icon.className = type === 'danger' ? 'bi bi-x-circle-fill text-danger fs-4' : 'bi bi-check-circle-fill text-success fs-4';
+        
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => { showToast('Skopiowano link do schowka!'); });
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Skopiowano link do schowka!');
+        });
     }
 
     function formatDate(dateStr) {
@@ -459,52 +380,18 @@
         } catch (e) { return dateStr; }
     }
 
-    function toggleArchive() { showArchive = document.getElementById('archiveSwitch').checked; renderTable(globalData); }
-
-    // --- SORTOWANIE KOLUMN ---
-    function sortData(key) {
-        if(sortCol === key) sortAsc = !sortAsc;
-        else { sortCol = key; sortAsc = true; }
-
-        globalData.sort((a, b) => {
-            let valA = a[key] !== undefined ? a[key] : '';
-            let valB = b[key] !== undefined ? b[key] : '';
-
-            if(key === 'ilosc' || key === 'cena') {
-                valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0;
-            } else if(key === 'dataZam') {
-                valA = new Date(valA).getTime() || 0; valB = new Date(valB).getTime() || 0;
-            } else {
-                valA = String(valA).toLowerCase(); valB = String(valB).toLowerCase();
-            }
-
-            if(valA < valB) return sortAsc ? -1 : 1;
-            if(valA > valB) return sortAsc ? 1 : -1;
-            return 0;
-        });
-        renderTable(globalData, false); // false oznacza nie odwracaj z powrotem
+    function toggleArchive() {
+        showArchive = document.getElementById('archiveSwitch').checked;
+        loadData();
     }
 
-    // --- KLONOWANIE ZAMÓWIENIA ---
-    function cloneOrder(id) {
-        const row = globalData.find(r => r.id === id);
-        if(row && currentRole === 'lider') {
-            document.getElementById('produkt').value = row.produkt;
-            document.getElementById('strefa').value = row.strefa;
-            document.getElementById('ilosc').value = row.ilosc;
-            document.getElementById('jednostka').value = row.jednostka || 'PCS';
-            document.getElementById('cena').value = row.cena || '';
-            document.getElementById('link').value = row.link;
-            window.scrollTo({top: 0, behavior: 'smooth'});
-            showToast('Skopiowano! Wystarczy potwierdzić ilość i wysłać.');
-        }
-    }
-
+    // --- EDYCJA ILOŚCI ---
     async function editQty(id, oldQty, btnElement) {
         const newQty = prompt("Wpisz nową ilość:", oldQty);
         if (newQty && newQty != oldQty) {
             const row = btnElement.closest('tr');
             const qtyValCell = row.querySelector('.qty-val');
+            
             qtyValCell.innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
             try {
                 await fetch(SCRIPT_URL, { 
@@ -512,12 +399,8 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
                 qtyValCell.innerText = newQty;
+                // Aktualizujemy onclicka w przycisku edycji
                 btnElement.setAttribute('onclick', `editQty(${id}, ${newQty}, this)`);
-                
-                // Update bufor
-                let rowData = globalData.find(r => r.id === id);
-                if(rowData) rowData.ilosc = newQty;
-
                 showToast('Zaktualizowano ilość!');
             } catch(e) {
                 showToast('Błąd aktualizacji', 'danger');
@@ -550,13 +433,13 @@
     async function loadData() {
         const tbody = document.getElementById('ordersTableBody');
         let skeletonHtml = '';
-        for(let i=0; i<6; i++) skeletonHtml += `<tr><td colspan="11" class="py-3"><div class="skeleton-box"></div></td></tr>`;
+        for(let i=0; i<5; i++) skeletonHtml += `<tr><td colspan="11"><div class="skeleton-box"></div></td></tr>`;
         tbody.innerHTML = skeletonHtml;
         
         try {
             const response = await fetch(SCRIPT_URL);
-            globalData = await response.json();
-            renderTable(globalData, true); // domyślnie reverse nałożone
+            const data = await response.json();
+            renderTable(data);
             
             document.getElementById('searchInput').value = "";
             const allBtn = document.querySelector('#statusFilters button');
@@ -566,49 +449,44 @@
         }
     }
 
-    function renderTable(dataArray, applyReverse = false) {
+    function renderTable(data) {
         const tbody = document.getElementById('ordersTableBody');
         tbody.innerHTML = '';
-        
+        if(data.length === 0) { tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-5">Brak zamówień w bazie</td></tr>'; return; }
+
+        let lp = 1;
         let statOczek = 0, statZaakc = 0, statZamow = 0, statDost = 0;
-        let displayData = applyReverse ? [...dataArray].reverse() : dataArray;
-
-        let visibleCount = 0;
-
-        displayData.forEach(row => { 
+        
+        data.reverse().forEach(row => { 
             if (row.status === 'Oczekujące') statOczek++;
             if (row.status === 'Zaakceptowane') statZaakc++;
             if (row.status === 'Zamówione') statZamow++;
             if (row.status === 'Dostarczone') statDost++;
 
             if (!showArchive && row.status === 'Dostarczone') return;
-            visibleCount++;
 
             let tr = document.createElement('tr');
             tr.setAttribute('data-status', row.status.toLowerCase());
             if (row.priorytet === 'PILNE') tr.className = 'row-urgent';
             
+            // LOGIKA DOSTĘPU (Ignoruje wielkość liter)
             const czyToWlasciciel = row.kto && currentUser && (row.kto.toLowerCase() === currentUser.toLowerCase());
+            
             let actionButtons = '-';
             
-            // Klonowanie przycisku (dla lidera zawsze widoczne)
-            const cloneBtn = currentRole === 'lider' ? `<button class="btn btn-sm btn-light border text-secondary w-100 shadow-sm mt-1 py-1" onclick="cloneOrder(${row.id})" title="Klonuj to zapotrzebowanie" style="font-size: 0.8em;"><i class="bi bi-files"></i> Ponów</button>` : '';
-
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
                 actionButtons = `<button class="btn btn-sm btn-success w-100 mb-1 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)">Akceptuj</button>
-                                 <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm" style="background:var(--card-bg);" onclick="rejectOrder(${row.id}, this)">Odrzuć</button>`;
+                                 <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm bg-white" onclick="rejectOrder(${row.id}, this)">Odrzuć</button>`;
             } else if (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel) {
+                // DODANO PRZYCISK EDYTUJ ORAZ USUŃ DLA LIDERÓW (TYLKO SWOJE)
                 actionButtons = `
-                    <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill shadow-sm" onclick="editQty(${row.id}, ${row.ilosc}, this)"><i class="bi bi-pencil-square"></i> Edytuj</button>
-                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm mb-1" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Usuń</button>
-                    ${cloneBtn}
+                    <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill shadow-sm" onclick="editQty(${row.id}, ${row.ilosc}, this)" title="Edytuj Ilość"><i class="bi bi-pencil-square"></i> Edytuj</button>
+                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm" onclick="deleteOrder(${row.id}, this)" title="Anuluj zapotrzebowanie"><i class="bi bi-trash"></i> Usuń</button>
                 `;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
                 actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zamówione', '', this)">Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Odbiór paczki</button>`;
-            } else {
-                actionButtons = cloneBtn;
+                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)">Odbiór paczki</button>`;
             }
 
             let sClass = "badge-soft-secondary";
@@ -620,15 +498,16 @@
             const pBadge = row.priorytet === 'PILNE' ? '<span class="badge-urgent">PILNE</span>' : '';
             const cenaWidok = row.cena ? `<span class="price-tag">${row.cena} zł</span>` : '-';
             
+            // ZAMKNIĘCIE W GRID (Idealne wyrównanie)
             const qtyHtml = `<div class="qty-container">
                                 <div class="qty-val fw-bold text-primary">${row.ilosc}</div>
                                 <div class="unit-box"><span class="badge-unit">${row.jednostka || 'PCS'}</span></div>
                              </div>`;
 
             tr.innerHTML = `
-                <td class="text-center text-muted small">${row.id-1}</td>
-                <td><div class="d-flex align-items-center">${pBadge}<span class="fw-bolder" style="font-size: 1.05em;">${row.produkt}</span></div></td>
-                <td class="text-center"><span class="badge" style="background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-color);">${row.strefa}</span></td>
+                <td class="text-center text-muted small">${lp++}</td>
+                <td class="text-dark"><div class="d-flex align-items-center">${pBadge}<span class="fw-bolder" style="font-size: 1.05em;">${row.produkt}</span></div></td>
+                <td class="text-center"><span class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 rounded shadow-sm">${row.strefa}</span></td>
                 <td class="text-center">${qtyHtml}</td>
                 <td class="text-center">${cenaWidok}</td>
                 <td class="text-center align-middle text-muted small fw-medium">${formatDate(row.dataZam)}</td>
@@ -646,83 +525,39 @@
             tbody.appendChild(tr);
         });
 
-        // EMPTY STATE HTML
-        if(visibleCount === 0) {
-            tbody.innerHTML = `<tr id="emptyStateRow"><td colspan="11" class="empty-state">
-                <i class="bi bi-inbox text-secondary"></i>
-                <h5>Brak zamówień do wyświetlenia</h5>
-                <p class="small">Lista jest pusta lub odfiltrowana.</p>
-            </td></tr>`;
-        }
-
-        // Aktualizacja Statystyk
         document.getElementById('stat-oczekujace').innerText = statOczek;
         document.getElementById('stat-zaakceptowane').innerText = statZaakc;
         document.getElementById('stat-zamowione').innerText = statZamow;
         document.getElementById('stat-dostarczone').innerText = statDost;
-
-        // Aktualizacja Paska postępu
-        let totalActive = statOczek + statZaakc + statZamow + statDost;
-        let pOczek = totalActive ? (statOczek / totalActive * 100) : 0;
-        let pWTok = totalActive ? ((statZaakc + statZamow) / totalActive * 100) : 0;
-        let pDost = totalActive ? (statDost / totalActive * 100) : 0;
-
-        document.getElementById('pb-oczek').style.width = pOczek + '%';
-        document.getElementById('pb-w-trakcie').style.width = pWTok + '%';
-        document.getElementById('pb-dost').style.width = pDost + '%';
     }
 
     function filterByStatus(statusName, btnElement) {
         const buttons = document.querySelectorAll('#statusFilters button');
         buttons.forEach(b => {
             b.classList.remove('btn-dark', 'text-white', 'shadow-sm');
-            b.classList.add('bg-opacity-10', 'border-0');
+            b.classList.add('bg-opacity-10', 'text-dark', 'border-0');
             b.classList.remove('active');
-            if(!document.body.classList.contains('dark-mode')) b.classList.add('text-dark');
         });
         
         btnElement.classList.remove('bg-opacity-10', 'text-dark', 'border-0');
         btnElement.classList.add('btn-dark', 'text-white', 'active', 'shadow-sm');
 
-        const rows = document.querySelectorAll('#ordersTableBody tr:not(#emptyStateRow)');
-        let visibleCount = 0;
+        const rows = document.querySelectorAll('#ordersTableBody tr');
         rows.forEach(row => {
-            if(statusName === 'wszystkie') { row.style.display = ""; visibleCount++; } 
+            if(statusName === 'wszystkie') { row.style.display = ""; } 
             else {
-                let match = row.getAttribute('data-status') === statusName;
-                row.style.display = match ? "" : "none";
-                if(match) visibleCount++;
+                row.style.display = row.getAttribute('data-status') === statusName ? "" : "none";
             }
         });
-        checkEmptyState(visibleCount);
     }
 
     document.getElementById('searchInput').addEventListener('keyup', function() {
         const value = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#ordersTableBody tr:not(#emptyStateRow)');
+        const rows = document.querySelectorAll('#ordersTableBody tr');
         const allBtn = document.querySelector('#statusFilters button:first-child');
         if(allBtn) filterByStatus('wszystkie', allBtn);
-        
-        let visibleCount = 0;
-        rows.forEach(row => { 
-            let match = row.innerText.toLowerCase().includes(value);
-            row.style.display = match ? "" : "none"; 
-            if(match) visibleCount++;
-        });
-        checkEmptyState(visibleCount);
+        rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none"; });
     });
-
-    function checkEmptyState(count) {
-        let emptyRow = document.getElementById('emptyStateRow');
-        let tbody = document.getElementById('ordersTableBody');
-        if(count === 0) {
-            if(!emptyRow) {
-                tbody.insertAdjacentHTML('beforeend', `<tr id="emptyStateRow"><td colspan="11" class="empty-state"><i class="bi bi-search text-secondary"></i><h5>Brak wyników</h5><p class="small">Nie znaleziono pasujących rekordów.</p></td></tr>`);
-            } else { emptyRow.style.display = ""; }
-        } else {
-            if(emptyRow) emptyRow.style.display = "none";
-        }
-    }
 
     function rejectOrder(idWiersza, btnElement) {
         const powod = prompt("Podaj powód odrzucenia (Będzie widoczny dla Lidera):");
@@ -734,10 +569,7 @@
         const row = btnElement.closest('tr'); row.style.opacity = '0.3'; row.style.pointerEvents = 'none';
         try {
             await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id: id }) });
-            row.remove(); 
-            globalData = globalData.filter(r => r.id !== id); // Update bufor
-            showToast('Usunięto pomyślnie!');
-            setTimeout(loadData, 500); // refresh stats
+            row.remove(); showToast('Usunięto pomyślnie!');
         } catch(e) { showToast('Błąd komunikacji', 'danger'); row.style.opacity = '1'; row.style.pointerEvents = 'auto'; }
     }
 
@@ -761,14 +593,11 @@
                 row.querySelector('td:nth-child(11)').innerHTML = '<span class="badge bg-light text-success border border-success"><i class="bi bi-check-all"></i> Gotowe</span>';
 
                 row.style.opacity = '1'; row.style.pointerEvents = 'auto';
-                
-                // Update bufor
-                let rowData = globalData.find(r => r.id === id);
-                if(rowData) { rowData.status = stat; rowData.powod = reason; }
-
                 showToast(`Zmieniono status na: ${stat}`);
                 if (stat === 'Dostarczone' && !showArchive) setTimeout(() => row.style.display = 'none', 500);
-                setTimeout(() => renderTable(globalData, false), 600); // odśwież statystyki i UI
+                
+                // Aktualizujemy statystyki odświeżając dane w tle
+                setTimeout(loadData, 1000); 
             }
         } catch (error) { showToast('Błąd sieci', 'danger'); row.style.opacity = '1'; row.style.pointerEvents = 'auto'; }
     }
