@@ -28,7 +28,7 @@
             <form id="loginForm">
                 <div class="mb-3">
                     <label class="form-label">Nazwa użytkownika</label>
-                    <input type="text" id="loginInput" class="form-control" placeholder="Np. Lider" required>
+                    <input type="text" id="loginInput" class="form-control" placeholder="Np. Lider LCM" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Hasło</label>
@@ -108,10 +108,13 @@
     let currentRole = 'none';
     let currentUser = '';
 
+    // NOWA BAZA UŻYTKOWNIKÓW (klucze z małej litery dla łatwego logowania)
     const users = {
-        'Lider': { haslo: 'tpv12345!', rola: 'lider' },
-        'Kierownik': { haslo: 'tpv12345!', rola: 'kierownik' },
-        'Łukasz': { haslo: 'tpv12345!', rola: 'lukasz' }
+        'lider lcm': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCM' },
+        'lider lcdr': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCDR' },
+        'lider ocr': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider OCR' },
+        'kierownik': { haslo: 'tpv12345!', rola: 'kierownik', nazwa: 'Kierownik' },
+        'łukasz': { haslo: 'tpv12345!', rola: 'lukasz', nazwa: 'Łukasz' }
     };
 
     window.onload = () => {
@@ -124,16 +127,21 @@
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const login = document.getElementById('loginInput').value.trim();
+        
+        // Zmieniamy wpisany login na małe litery przed sprawdzeniem
+        const inputLogin = document.getElementById('loginInput').value.trim().toLowerCase();
         const pass = document.getElementById('passInput').value;
 
-        if (users[login] && users[login].haslo === pass) {
-            const rola = users[login].rola;
+        // Sprawdzamy czy istnieje taki użytkownik pisany z małych liter
+        if (users[inputLogin] && users[inputLogin].haslo === pass) {
+            const rola = users[inputLogin].rola;
+            const ladnaNazwa = users[inputLogin].nazwa;
+            
             localStorage.setItem('userRole', rola);
-            localStorage.setItem('userLogin', login);
-            setupInterface(rola, login);
+            localStorage.setItem('userLogin', ladnaNazwa);
+            setupInterface(rola, ladnaNazwa);
         } else {
-            alert('Błędny login lub hasło! Pamiętaj o wielkości liter (np. "Łukasz").');
+            alert('Błędny login lub hasło!');
         }
     });
 
@@ -143,7 +151,8 @@
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
         
         document.getElementById('logoutBar').classList.add('active-view');
-        document.getElementById('userGreeting').innerText = `Zalogowano: ${login} | Rola: ${role.toUpperCase()}`;
+        // Wyświetlamy np. "Zalogowano: Lider LCM"
+        document.getElementById('userGreeting').innerText = `Zalogowano: ${login}`;
 
         if (currentRole === 'lider') {
             document.getElementById('view-lider').classList.add('active-view');
@@ -174,7 +183,7 @@
             strefa: document.getElementById('strefa').value,
             ilosc: document.getElementById('ilosc').value,
             link: document.getElementById('link').value,
-            kto: currentUser
+            kto: currentUser // Skrypt bierze z logowania np. "Lider LCDR"
         };
 
         try {
