@@ -142,6 +142,11 @@
         .archive-hidden { display: none !important; }
         .form-check-input:checked { background-color: #0f172a; border-color: #0f172a; }
 
+        /* NOWE STYLE DLA JEDNOSTEK I EDYCJI ILOŚCI */
+        .badge-unit { font-size: 0.7em; background: #e2e8f0; color: #475569; margin-left: 6px; padding: 3px 6px; border-radius: 6px; vertical-align: middle; }
+        .editable-qty { cursor: pointer; text-decoration: underline dashed #cbd5e1; transition: color 0.2s; padding: 2px 5px; }
+        .editable-qty:hover { color: #3b82f6; text-decoration: underline solid #3b82f6; background: rgba(59,130,246,0.1); border-radius: 4px; }
+
         /* --- WYSZUKIWARKA (Glow focus) --- */
         .filters-wrapper { background: #f8fafc; border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
         .search-container input { border-radius: 0 12px 12px 0; border-left: none; }
@@ -223,8 +228,15 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label fw-bold text-muted small">ILOŚĆ</label>
-                        <input type="number" id="ilosc" class="form-control text-center text-primary fw-bold" min="1" value="1" required>
+                        <label class="form-label fw-bold text-muted small">ILOŚĆ & JEDN.</label>
+                        <div class="input-group shadow-sm">
+                            <input type="number" id="ilosc" class="form-control text-center text-primary fw-bold" min="1" value="1" required>
+                            <select id="jednostka" class="form-select bg-light fw-bold text-secondary" style="max-width: 85px;">
+                                <option value="PCS">PCS</option>
+                                <option value="BOX">BOX</option>
+                                <option value="ML">ML</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-muted small text-danger">PRIORYTET</label>
@@ -235,7 +247,7 @@
                     </div>
                     <div class="col-md-8">
                         <label class="form-label fw-bold text-muted small">SZACOWANA CENA (PLN)</label>
-                        <div class="input-group">
+                        <div class="input-group shadow-sm">
                             <span class="input-group-text"><i class="bi bi-currency-exchange"></i></span>
                             <input type="number" id="cena" class="form-control" placeholder="Np. 150.00">
                         </div>
@@ -321,13 +333,13 @@
 
 <script>
     // ==========================================
-    // TWÓJ LINK Z GOOGLE APPS SCRIPT
+    // TWÓJ ZAKTUALIZOWANY LINK Z GOOGLE APPS SCRIPT
     // ==========================================
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwql25-MnPGsgy5IElCu_EJFvHA9OZpInNOPY47AeJUbaluFidAuKG0x9vGXD9R2SK4hg/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaocet4gWbk0cF7xe2gYxBNjVK18gxQACz_PB_KZfmojoztuggqChtmJX8qAEBMXGsfw/exec'; 
     
     let currentRole = 'none';
     let currentUser = '';
-    let showArchive = false; // PUNKT 5
+    let showArchive = false; 
 
     const users = {
         'lider lcm': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCM' },
@@ -398,9 +410,9 @@
         location.reload(); 
     }
 
-    // NAPRAWIONE I ULEPSZONE FORMATOWANIE DATY
     function formatDate(dateStr) {
-        if (!dateStr) return '-';
+        if (!dateStr) return '';
+        if (typeof dateStr === 'string' && dateStr.includes('.')) return dateStr;
         try {
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return dateStr; 
@@ -415,10 +427,29 @@
         } catch (e) { return dateStr; }
     }
 
-    // PUNKT 5: ARCHIWUM
     function toggleArchive() {
         showArchive = document.getElementById('archiveSwitch').checked;
         loadData();
+    }
+
+    // NOWE: EDYCJA ILOŚCI "W LOCIE"
+    async function editQty(id, oldQty, el) {
+        const newQty = prompt("Wpisz nową ilość:", oldQty);
+        if (newQty && newQty != oldQty) {
+            const prevHtml = el.innerHTML;
+            el.innerHTML = '<span class="spinner-border spinner-border-sm" style="width: 1rem; height: 1rem;"></span>';
+            try {
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'edit', id: id, newQty: newQty }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                el.innerText = newQty;
+            } catch(e) {
+                alert('Błąd: ' + e);
+                el.innerHTML = prevHtml;
+            }
+        }
     }
 
     async function submitOrder(e) {
@@ -433,10 +464,11 @@
             produkt: document.getElementById('produkt').value,
             strefa: document.getElementById('strefa').value,
             ilosc: document.getElementById('ilosc').value,
+            jednostka: document.getElementById('jednostka').value, // Pobieranie jednostki
             link: document.getElementById('link').value,
             kto: currentUser,
-            priorytet: document.getElementById('priorytet').value, // Punkt 1
-            cena: document.getElementById('cena').value // Punkt 2
+            priorytet: document.getElementById('priorytet').value, 
+            cena: document.getElementById('cena').value 
         };
 
         try {
@@ -486,29 +518,28 @@
         let lpCounter = 1;
         
         data.reverse().forEach(row => { 
-            // PUNKT 5: FILTROWANIE ARCHIWUM
             if (!showArchive && row.status === 'Dostarczone') return;
 
             let tr = document.createElement('tr');
             tr.setAttribute('data-status', row.status.toLowerCase());
             
-            // PUNKT 1: WIZUALIZACJA PILNYCH
             if (row.priorytet === 'PILNE') tr.className = 'row-urgent';
             
             let actionButtons = '-';
             
+            // Przyciski akcji wykorzystujące element (this), by uniknąć przeładowania
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
                 actionButtons = `
-                    <button class="btn btn-sm btn-success w-100 mb-1 rounded-pill" onclick="updateStatus(${row.id}, 'Zaakceptowane')"><i class="bi bi-check-lg"></i> Akceptuj</button>
-                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill bg-white" onclick="rejectOrder(${row.id})"><i class="bi bi-x-lg"></i> Odrzuć</button>
+                    <button class="btn btn-sm btn-success w-100 mb-1 rounded-pill" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)"><i class="bi bi-check-lg"></i> Akceptuj</button>
+                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill bg-white" onclick="rejectOrder(${row.id}, this)"><i class="bi bi-x-lg"></i> Odrzuć</button>
                 `;
             } else if (currentRole === 'lider' && row.status === 'Oczekujące' && row.kto === currentUser) {
-                // PUNKT 3: ANULOWANIE DLA LIDERA
-                actionButtons = `<button class="btn btn-sm btn-outline-danger w-100 rounded-pill" onclick="deleteOrder(${row.id})"><i class="bi bi-trash"></i> Anuluj</button>`;
+                // ANULOWANIE DLA LIDERA TYLKO WŁASNYCH 
+                actionButtons = `<button class="btn btn-sm btn-outline-danger w-100 rounded-pill" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Anuluj</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
-                actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill" onclick="updateStatus(${row.id}, 'Zamówione')"><i class="bi bi-cart-check"></i> Kupione</button>`;
+                actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill" onclick="updateStatus(${row.id}, 'Zamówione', '', this)"><i class="bi bi-cart-check"></i> Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill" onclick="updateStatus(${row.id}, 'Dostarczone')" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Dostarczono</button>`;
+                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Odbiór paczki</button>`;
             }
 
             let statusColor = "bg-secondary";
@@ -520,12 +551,17 @@
 
             const pBadge = row.priorytet === 'PILNE' ? '<span class="badge badge-urgent me-1">PILNE</span>' : '';
             const cenaWidok = row.cena ? `<span class="price-tag">${row.cena} PLN</span>` : '-';
+            
+            // Weryfikacja czy lider może edytować i doklejenie jednostki miary
+            const canEdit = (currentRole === 'lider' && row.status === 'Oczekujące' && row.kto === currentUser);
+            const qtyHtml = canEdit ? `<span class="editable-qty" onclick="editQty(${row.id}, ${row.ilosc}, this)">${row.ilosc}</span>` : row.ilosc;
+            const jednostkaHtml = `<span class="badge-unit">${row.jednostka || 'PCS'}</span>`;
 
             tr.innerHTML = `
                 <td class="text-center text-muted fw-bold small" style="color: #cbd5e1;">#${lpCounter++}</td>
                 <td class="fw-bold text-dark">${pBadge}${row.produkt}</td>
                 <td class="text-center"><span class="badge bg-light text-dark border border-secondary-subtle px-3 py-2 rounded-pill shadow-sm">${row.strefa}</span></td>
-                <td class="text-center fw-bold fs-6 text-primary">${row.ilosc}</td>
+                <td class="text-center fw-bold fs-6 text-primary">${qtyHtml}${jednostkaHtml}</td>
                 <td class="text-center">${cenaWidok}</td>
                 <td class="text-center align-middle" style="line-height: 1.2;">${formatDate(row.dataZam)}</td>
                 <td class="text-center small fw-medium"><i class="bi bi-person-circle text-primary me-1"></i>${row.kto}</td>
@@ -578,40 +614,85 @@
         });
     });
 
-    function rejectOrder(idWiersza) {
+    function rejectOrder(idWiersza, btnElement) {
         const powod = prompt("Odrzucasz zamówienie. Podaj powód dla Lidera (Wymagane):");
         if (powod === null) return; 
         if (powod.trim() === "") { alert("Musisz podać powód!"); return; }
-        updateStatus(idWiersza, 'Odrzucone', powod);
+        updateStatus(idWiersza, 'Odrzucone', powod, btnElement);
     }
 
-    // PUNKT 3: USUWANIE
-    async function deleteOrder(id) {
+    // USUWANIE BEZ PRZEŁADOWANIA
+    async function deleteOrder(id, btnElement) {
         if (!confirm('Czy na pewno chcesz anulować to zgłoszenie?')) return;
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id }) });
-        loadData();
+        
+        const clickedRow = btnElement.closest('tr');
+        clickedRow.style.opacity = '0.3';
+        clickedRow.style.pointerEvents = 'none';
+        
+        try {
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'delete', id: id }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            clickedRow.remove(); // Usunięcie elementu w locie
+        } catch(e) {
+            alert('Błąd komunikacji: ' + e);
+            clickedRow.style.opacity = '1';
+            clickedRow.style.pointerEvents = 'auto';
+        }
     }
 
-    async function updateStatus(idWiersza, newStatus, reason = '') {
+    // ZMIANA STATUSU BEZ PRZEŁADOWANIA CAŁEJ BAZY
+    async function updateStatus(idWiersza, newStatus, reason = '', btnElement) {
         if(newStatus !== 'Odrzucone' && !confirm(`Potwierdzasz zmianę na: "${newStatus}"?`)) return;
-        let clickedRow;
-        const rows = document.querySelectorAll('#ordersTableBody tr');
-        rows.forEach(tr => {
-            const btn = tr.querySelector(`button[onclick*="updateStatus(${idWiersza}"]`) || tr.querySelector(`button[onclick*="rejectOrder(${idWiersza})"]`);
-            if (btn) clickedRow = tr;
-        });
+        
+        const clickedRow = btnElement.closest('tr');
+
         if (clickedRow) {
             clickedRow.style.opacity = '0.4';
             clickedRow.style.filter = 'grayscale(100%)';
             clickedRow.style.pointerEvents = 'none'; 
         }
+
         try {
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'update', id: idWiersza, newStatus: newStatus, reason: reason }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
-            loadData();
+            
+            // Logika UI po stronie przeglądarki (żeby uniknąć ponownego loadData)
+            if (clickedRow) {
+                const statusCell = clickedRow.querySelector('td:nth-child(9)');
+                
+                let statusColor = "bg-secondary";
+                let statusIcon = "bi-clock-history";
+                if(newStatus === 'Zaakceptowane') { statusColor = "bg-warning text-dark"; statusIcon = "bi-check2-all"; }
+                if(newStatus === 'Zamówione') { statusColor = "bg-primary"; statusIcon = "bi-truck"; }
+                if(newStatus === 'Dostarczone') { statusColor = "bg-success"; statusIcon = "bi-box-seam-fill"; }
+                if(newStatus === 'Odrzucone') { statusColor = "bg-danger"; statusIcon = "bi-shield-fill-x"; }
+
+                statusCell.innerHTML = `<span class="badge ${statusColor} w-100 py-2 rounded-pill shadow-sm"><i class="bi ${statusIcon} me-1"></i>${newStatus}</span>`;
+                clickedRow.setAttribute('data-status', newStatus.toLowerCase());
+
+                if (newStatus === 'Odrzucone') {
+                    const reasonCell = clickedRow.querySelector('td:nth-child(10) .powod-text');
+                    if(reasonCell) reasonCell.innerText = reason;
+                }
+
+                const actionCell = clickedRow.querySelector('td:nth-child(11)');
+                actionCell.innerHTML = '<span class="badge bg-light text-success border border-success w-100 py-2 rounded-pill"><i class="bi bi-shield-check me-1"></i> Zrobione</span>';
+
+                clickedRow.style.opacity = '1';
+                clickedRow.style.filter = 'none';
+                clickedRow.style.pointerEvents = 'auto';
+                
+                // Ukrycie archiwalnego w locie jeśli jest schowane na przełączniku
+                if (newStatus === 'Dostarczone' && !showArchive) {
+                    setTimeout(() => clickedRow.style.display = 'none', 400);
+                }
+            }
         } catch (error) {
             alert('Błąd komunikacji: ' + error);
             if (clickedRow) {
