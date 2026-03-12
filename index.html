@@ -137,9 +137,9 @@
         .stat-value { font-size: 1.5em; font-weight: 700; line-height: 1; color: var(--text-main);}
         .stat-label { font-size: 0.75em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
 
-        /* --- TOAST --- */
-        #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 1050; }
-        .custom-toast { background: var(--card-bg); border-radius: 12px; padding: 15px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-left: 4px solid #10b981; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);}
+        /* --- TOAST (Z naprawionym pointer-events) --- */
+        #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 1050; pointer-events: none; } /* NAPRAWA: Zablokowanie niewidzialnej tarczy */
+        .custom-toast { pointer-events: auto; background: var(--card-bg); border-radius: 12px; padding: 15px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-left: 4px solid #10b981; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);}
         .custom-toast.show { transform: translateX(0); }
 
         .skeleton-box { height: 20px; background: var(--skeleton-grad); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
@@ -347,7 +347,7 @@
                             <th class="text-center sortable" onclick="sortData('strefa')">Strefa <i class="bi bi-chevron-expand text-secondary"></i></th>
                             <th class="text-center sortable" onclick="sortData('ilosc')" style="min-width: 110px;">Ilość <i class="bi bi-chevron-expand text-secondary"></i></th>
                             <th class="text-center sortable" onclick="sortData('cena')">Cena <i class="bi bi-chevron-expand text-secondary"></i></th>
-                            <th class="text-center sortable" onclick="sortData('dataZam')">Data Zgłoszenia <i class="bi bi-chevron-expand text-secondary"></i></th>
+                            <th class="text-center sortable" onclick="sortData('dataZam')">Data <i class="bi bi-chevron-expand text-secondary"></i></th>
                             <th class="text-center">Zgłasza</th>
                             <th class="text-center">Sklep</th>
                             <th class="text-center sortable" onclick="sortData('status')" style="min-width: 140px;">Status <i class="bi bi-chevron-expand text-secondary"></i></th>
@@ -520,7 +520,7 @@
     }
 
     async function loadData() {
-        document.getElementById('selectAllCheck').checked = false; updateBulkBar(); // Reset bulk
+        document.getElementById('selectAllCheck').checked = false; updateBulkBar(); 
         const tbody = document.getElementById('ordersTableBody');
         let skeletonHtml = '';
         for(let i=0; i<6; i++) skeletonHtml += `<tr><td colspan="12" class="py-3"><div class="skeleton-box"></div></td></tr>`;
@@ -543,9 +543,8 @@
     function toggleAllCheckboxes(masterCheckbox) {
         const checkboxes = document.querySelectorAll('.row-checkbox');
         checkboxes.forEach(cb => {
-            // Zaznaczaj tylko widoczne wiersze
             if (cb.closest('tr').style.display !== 'none') {
-                cb.checked = masterCheckbox.checked;
+                if(!cb.disabled) cb.checked = masterCheckbox.checked;
             }
         });
         updateBulkBar();
@@ -597,7 +596,6 @@
         const btnContainer = document.getElementById('bulkButtons');
         btnContainer.innerHTML = `<span class="spinner-border spinner-border-sm text-primary"></span><span class="ms-2 fw-bold text-primary">Przetwarzanie...</span>`;
 
-        // Przetwarzanie sekwencyjne dla bezpieczeństwa bazy Google Sheet
         for(let check of checks) {
             const id = check.value;
             const row = check.closest('tr');
@@ -613,8 +611,7 @@
                     await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'update', id: id, newStatus: actionType, reason: reason }) });
                     let rowData = globalData.find(r => r.id == id);
                     if(rowData) { rowData.status = actionType; rowData.powod = reason; }
-                    // Update wizualny na żywo
-                    row.querySelector('.status-col').innerHTML = `<span class="badge badge-soft-warning">${actionType}</span>`; // Uproszczony wizualnie, po re-renderze dostanie pełny kolor
+                    row.querySelector('.status-col').innerHTML = `<span class="badge badge-soft-secondary">Zrobione</span>`; 
                     row.style.opacity = '1';
                 }
             } catch(e) { console.error('Błąd dla ID', id); }
@@ -623,7 +620,7 @@
         showToast('Zakończono akcję grupową!', 'success');
         document.getElementById('selectAllCheck').checked = false;
         updateBulkBar();
-        renderTable(globalData, false); // Odświeżenie widoku ze statystykami
+        renderTable(globalData, false); 
     }
 
     function renderTable(dataArray, applyReverse = false) {
@@ -666,7 +663,7 @@
             } else if (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel) {
                 actionButtons = `
                     <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill shadow-sm" onclick="editQty(${row.id}, ${row.ilosc}, this)"><i class="bi bi-pencil-square"></i> Edytuj</button>
-                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Usuń</button>`;
+                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm mb-1" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Usuń</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
                 actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zamówione', '', this)">Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
@@ -744,7 +741,6 @@
         });
         checkEmptyState(visibleCount);
         
-        // Zawsze czyść i ukrywaj pasek grupowy przy zmianie filtra
         document.getElementById('selectAllCheck').checked = false;
         document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
         updateBulkBar();
