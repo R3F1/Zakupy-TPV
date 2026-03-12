@@ -137,8 +137,7 @@
         .stat-value { font-size: 1.5em; font-weight: 700; line-height: 1; color: var(--text-main);}
         .stat-label { font-size: 0.75em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
 
-        /* --- TOAST (Z naprawionym pointer-events) --- */
-        #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 1050; pointer-events: none; } /* NAPRAWA: Zablokowanie niewidzialnej tarczy */
+        #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 1050; pointer-events: none; } 
         .custom-toast { pointer-events: auto; background: var(--card-bg); border-radius: 12px; padding: 15px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-left: 4px solid #10b981; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);}
         .custom-toast.show { transform: translateX(0); }
 
@@ -347,7 +346,7 @@
                             <th class="text-center sortable" onclick="sortData('strefa')">Strefa <i class="bi bi-chevron-expand text-secondary"></i></th>
                             <th class="text-center sortable" onclick="sortData('ilosc')" style="min-width: 110px;">Ilość <i class="bi bi-chevron-expand text-secondary"></i></th>
                             <th class="text-center sortable" onclick="sortData('cena')">Cena <i class="bi bi-chevron-expand text-secondary"></i></th>
-                            <th class="text-center sortable" onclick="sortData('dataZam')">Data <i class="bi bi-chevron-expand text-secondary"></i></th>
+                            <th class="text-center sortable" onclick="sortData('dataZam')">Data Zgłoszenia <i class="bi bi-chevron-expand text-secondary"></i></th>
                             <th class="text-center">Zgłasza</th>
                             <th class="text-center">Sklep</th>
                             <th class="text-center sortable" onclick="sortData('status')" style="min-width: 140px;">Status <i class="bi bi-chevron-expand text-secondary"></i></th>
@@ -430,6 +429,29 @@
         document.getElementById('userGreeting').innerHTML = `<i class="bi bi-person-circle text-primary"></i> ${login}`;
         document.getElementById('view-table').classList.add('active-view');
         if (currentRole === 'lider') document.getElementById('view-lider').classList.add('active-view');
+
+        // USTAWIENIE DOMYŚLNEGO FILTRU W ZALEŻNOŚCI OD ROLI
+        const buttons = document.querySelectorAll('#statusFilters button');
+        buttons.forEach(b => {
+            b.classList.remove('btn-dark', 'text-white', 'shadow-sm', 'active');
+            b.classList.add('bg-opacity-10', 'border-0');
+            if(!document.body.classList.contains('dark-mode')) b.classList.add('text-dark');
+        });
+
+        let defaultFilterBtn;
+        if (currentRole === 'kierownik') {
+            defaultFilterBtn = document.querySelector("button[onclick*=\"filterByStatus('oczekujące'\"]");
+        } else if (currentRole === 'lukasz') {
+            defaultFilterBtn = document.querySelector("button[onclick*=\"filterByStatus('zaakceptowane'\"]");
+        } else {
+            defaultFilterBtn = document.querySelector("button[onclick*=\"filterByStatus('wszystkie'\"]");
+        }
+        
+        if (defaultFilterBtn) {
+            defaultFilterBtn.classList.remove('bg-opacity-10', 'text-dark', 'border-0');
+            defaultFilterBtn.classList.add('btn-dark', 'text-white', 'active', 'shadow-sm');
+        }
+
         loadData();
     }
 
@@ -461,7 +483,17 @@
         } catch (e) { return dateStr; }
     }
 
-    function toggleArchive() { showArchive = document.getElementById('archiveSwitch').checked; renderTable(globalData); }
+    // GŁÓWNA FUNKCJA DO ODŚWIEŻANIA WIDOKU (Z ZACHOWANIEM FILTRÓW)
+    function refreshTableView(applyReverse = false) {
+        renderTable(globalData, applyReverse);
+        const activeBtn = document.querySelector('#statusFilters button.active');
+        if(activeBtn) activeBtn.click(); // Re-aplikuje aktualnie podświetlony filtr!
+    }
+
+    function toggleArchive() { 
+        showArchive = document.getElementById('archiveSwitch').checked; 
+        refreshTableView(); 
+    }
 
     function sortData(key) {
         if(sortCol === key) sortAsc = !sortAsc; else { sortCol = key; sortAsc = true; }
@@ -474,7 +506,7 @@
             if(valA > valB) return sortAsc ? 1 : -1;
             return 0;
         });
-        renderTable(globalData, false); 
+        refreshTableView(); 
     }
 
     async function editQty(id, oldQty, btnElement) {
@@ -529,11 +561,10 @@
         try {
             const response = await fetch(SCRIPT_URL);
             globalData = await response.json();
-            renderTable(globalData, true); 
             
             document.getElementById('searchInput').value = "";
-            const allBtn = document.querySelector('#statusFilters button');
-            if(allBtn && !document.getElementById('searchInput').value) filterByStatus('wszystkie', allBtn);
+            refreshTableView(true); // Buduje tabelę i samoczynnie aplikuje ZAPAMIĘTANY filtr!
+            
         } catch (error) {
             tbody.innerHTML = '<tr><td colspan="12" class="text-danger text-center py-5 fw-bold">Błąd połączenia z bazą Google.</td></tr>';
         }
@@ -620,7 +651,7 @@
         showToast('Zakończono akcję grupową!', 'success');
         document.getElementById('selectAllCheck').checked = false;
         updateBulkBar();
-        renderTable(globalData, false); 
+        refreshTableView(false); 
     }
 
     function renderTable(dataArray, applyReverse = false) {
@@ -816,7 +847,7 @@
 
                 showToast(`Zmieniono status na: ${stat}`);
                 if (stat === 'Dostarczone' && !showArchive) setTimeout(() => row.style.display = 'none', 500);
-                setTimeout(() => renderTable(globalData, false), 600); 
+                setTimeout(() => refreshTableView(false), 600); 
             }
         } catch (error) { showToast('Błąd sieci', 'danger'); row.style.opacity = '1'; row.style.pointerEvents = 'auto'; }
     }
