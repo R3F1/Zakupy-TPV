@@ -9,11 +9,12 @@
     <style>
         .view-section { display: none; }
         .active-view { display: block; }
+        .table-responsive { max-height: 600px; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-light">
 
-<div class="container mt-5">
+<div class="container-fluid mt-4 px-4">
     <h2 class="mb-4 text-center">System Zamówień - Dział Techniczny</h2>
 
     <div id="logoutBar" class="text-end mb-3 view-section">
@@ -38,55 +39,58 @@
         </div>
     </div>
 
-    <div id="view-lider" class="view-section card shadow-sm">
+    <div id="view-lider" class="view-section card shadow-sm mx-auto" style="max-width: 600px;">
         <div class="card-header bg-primary text-white">Panel Lidera - Nowe Zamówienie</div>
         <div class="card-body">
             <form id="orderForm" onsubmit="submitOrder(event)">
                 <div class="mb-3">
-                    <label class="form-label">Dział</label>
-                    <select id="dzial" class="form-select" required>
-                        <option value="" disabled selected>Wybierz dział...</option>
+                    <label class="form-label">Produkt</label>
+                    <input type="text" id="produkt" class="form-control" placeholder="Nazwa zamawianej rzeczy" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Strefa</label>
+                    <select id="strefa" class="form-select" required>
+                        <option value="" disabled selected>Wybierz strefę...</option>
                         <option value="OCR">OCR</option>
                         <option value="LCM">LCM</option>
                         <option value="LCDR">LCDR</option>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Nazwa przedmiotu</label>
-                    <input type="text" id="nazwa" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Link do produktu</label>
-                    <input type="url" id="link" class="form-control" required>
-                </div>
-                <div class="mb-3">
                     <label class="form-label">Ilość</label>
                     <input type="number" id="ilosc" class="form-control" min="1" value="1" required>
                 </div>
-                <button type="submit" class="btn btn-success w-100">Wyślij do akceptacji Kierownika</button>
+                <div class="mb-3">
+                    <label class="form-label">Link</label>
+                    <input type="url" id="link" class="form-control" placeholder="https://..." required>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Dodaj do listy zamówień</button>
             </form>
         </div>
     </div>
 
     <div id="view-table" class="view-section card mt-4 shadow-sm">
-        <div class="card-header bg-dark text-white" id="table-title">Lista Zamówień</div>
-        <div class="card-body">
-            <button class="btn btn-sm btn-outline-secondary mb-3" onclick="loadData()">Odśwież listę</button>
-            
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <span id="table-title">Lista Zamówień</span>
+            <button class="btn btn-sm btn-outline-light" onclick="loadData()">Odśwież listę</button>
+        </div>
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle">
-                    <thead class="table-light">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead class="table-light sticky-top">
                         <tr>
-                            <th>Dział</th>
-                            <th>Nazwa</th>
-                            <th>Link</th>
+                            <th>Produkt</th>
+                            <th>Strefa</th>
                             <th>Ilość</th>
-                            <th>Status</th>
+                            <th>Data</th>
+                            <th>Kto</th>
+                            <th>Link</th>
+                            <th>Info Łukasz</th>
                             <th>Akcja</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
-                        <tr><td colspan="6" class="text-center text-muted">Ładowanie danych...</td></tr>
+                        <tr><td colspan="8" class="text-center text-muted py-3">Ładowanie danych...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -97,20 +101,19 @@
 
 <script>
     // ==========================================
-    // TUTAJ WKLEISZ LINK Z GOOGLE APPS SCRIPT
+    // TWÓJ LINK Z GOOGLE APPS SCRIPT
     // ==========================================
-    const SCRIPT_URL = 'TUTAJ_WKLEJ_SWOJ_LINK'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNzJcKQjntPM-IANivvZHNI3PLkTQebl5R5nN2hP2vwjXxHQOWFmzfKsQTpxzZaGQDFQ/exec'; 
     
     let currentRole = 'none';
+    let currentUser = '';
 
-    // BAZA UŻYTKOWNIKÓW Z TWOJEGO ZDJĘCIA
     const users = {
         'Lider': { haslo: 'tpv12345!', rola: 'lider' },
         'Kierownik': { haslo: 'tpv12345!', rola: 'kierownik' },
         'Łukasz': { haslo: 'tpv12345!', rola: 'lukasz' }
     };
 
-    // --- LOGIKA LOGOWANIA ---
     window.onload = () => {
         const savedRole = localStorage.getItem('userRole');
         const savedLogin = localStorage.getItem('userLogin');
@@ -136,21 +139,18 @@
 
     function setupInterface(role, login) {
         currentRole = role;
+        currentUser = login;
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
         
         document.getElementById('logoutBar').classList.add('active-view');
-        document.getElementById('userGreeting').innerText = `Zalogowano jako: ${login}`;
+        document.getElementById('userGreeting').innerText = `Zalogowano: ${login} | Rola: ${role.toUpperCase()}`;
 
         if (currentRole === 'lider') {
             document.getElementById('view-lider').classList.add('active-view');
         } else if (currentRole === 'kierownik' || currentRole === 'lukasz') {
             document.getElementById('view-table').classList.add('active-view');
-            document.getElementById('table-title').innerText = currentRole === 'kierownik' ? 'Panel Kierownika - Akceptacja Zamówień' : 'Panel Łukasza - Realizacja Zamówień';
-            if(SCRIPT_URL !== 'TUTAJ_WKLEJ_SWOJ_LINK') {
-                loadData();
-            } else {
-                document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger fw-bold">Brak podpiętego linku do Google Sheets!</td></tr>';
-            }
+            document.getElementById('table-title').innerText = currentRole === 'kierownik' ? 'Panel Akceptacji - Kierownik' : 'Panel Realizacji - Łukasz';
+            loadData();
         }
     }
 
@@ -160,26 +160,21 @@
         location.reload(); 
     }
 
-    // --- LOGIKA BAZY DANYCH (GOOGLE SHEETS) ---
-
-    // 1. Wysyłanie nowego zamówienia (Lider)
+    // --- WYSYŁANIE ZAMÓWIENIA ---
     async function submitOrder(e) {
         e.preventDefault();
-        if(SCRIPT_URL === 'TUTAJ_WKLEJ_SWOJ_LINK') {
-            alert("Najpierw musisz podpiąć link z Google Apps Script!");
-            return;
-        }
-
+        
         const btn = e.target.querySelector('button');
         btn.disabled = true;
         btn.innerText = "Wysyłanie...";
 
         const data = {
             action: 'add',
-            dzial: document.getElementById('dzial').value,
-            nazwa: document.getElementById('nazwa').value,
+            produkt: document.getElementById('produkt').value,
+            strefa: document.getElementById('strefa').value,
+            ilosc: document.getElementById('ilosc').value,
             link: document.getElementById('link').value,
-            ilosc: document.getElementById('ilosc').value
+            kto: currentUser
         };
 
         try {
@@ -188,89 +183,92 @@
                 body: JSON.stringify(data),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
             });
-            alert('Zamówienie wysłane do akceptacji!');
-            e.target.reset(); // Czyści formularz
+            alert('Dodano zamówienie!');
+            e.target.reset();
         } catch (error) {
-            alert('Błąd wysyłania: ' + error);
+            alert('Błąd: ' + error);
         } finally {
             btn.disabled = false;
-            btn.innerText = "Wyślij do akceptacji Kierownika";
+            btn.innerText = "Dodaj do listy zamówień";
         }
     }
 
-    // 2. Pobieranie listy zamówień
+    // --- POBIERANIE DANYCH ---
     async function loadData() {
         const tbody = document.getElementById('ordersTableBody');
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Ładowanie danych...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-3">Ładowanie z serwera...</td></tr>';
         
         try {
             const response = await fetch(SCRIPT_URL);
             const data = await response.json();
             renderTable(data);
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Błąd pobierania danych. Sprawdź link do skryptu.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-danger text-center py-3">Błąd pobierania danych z Google Sheets.</td></tr>';
+            console.error(error);
         }
     }
 
-    // 3. Generowanie tabeli i przycisków
+    // --- GENEROWANIE TABELI ---
     function renderTable(data) {
         const tbody = document.getElementById('ordersTableBody');
         tbody.innerHTML = '';
 
         if(data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Brak zamówień w bazie</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">Brak zamówień w bazie</td></tr>';
             return;
         }
 
-        // Odwracamy tablicę, żeby najnowsze były na górze
+        // Odwracamy żeby nowe zamówienia były u góry
         data.reverse().forEach(row => { 
             let tr = document.createElement('tr');
             let actionButtons = '-';
             
-            // Logika uprawnień do klikania przycisków
+            // Przyciski na podstawie Roli i Statusu "INFO ŁUKASZ"
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
                 actionButtons = `
-                    <button class="btn btn-sm btn-success w-100 mb-1" onclick="updateStatus('${row.id}', 'Do realizacji')">Akceptuj</button>
-                    <button class="btn btn-sm btn-danger w-100" onclick="updateStatus('${row.id}', 'Odrzucone')">Odrzuć</button>
+                    <button class="btn btn-sm btn-success w-100 mb-1" onclick="updateStatus(${row.id}, 'Zaakceptowane')">Akceptuj</button>
+                    <button class="btn btn-sm btn-danger w-100" onclick="updateStatus(${row.id}, 'Odrzucone')">Odrzuć</button>
                 `;
-            } else if (currentRole === 'lukasz' && row.status === 'Do realizacji') {
-                actionButtons = `<button class="btn btn-sm btn-primary w-100" onclick="updateStatus('${row.id}', 'Zamówione')">Oznacz: Zamówione</button>`;
+            } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
+                actionButtons = `<button class="btn btn-sm btn-primary w-100" onclick="updateStatus(${row.id}, 'Zamówione')">Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                actionButtons = `<button class="btn btn-sm btn-secondary w-100" onclick="updateStatus('${row.id}', 'Dostarczone')">Oznacz: Dostarczone</button>`;
+                actionButtons = `<button class="btn btn-sm btn-info w-100" onclick="updateStatus(${row.id}, 'Dostarczone')">Dostarczono</button>`;
             }
 
-            // Kolorowanie statusów
+            // Kolory plakietek statusu
             let statusColor = "bg-secondary";
-            if(row.status === 'Do realizacji') statusColor = "bg-warning text-dark";
+            if(row.status === 'Zaakceptowane') statusColor = "bg-warning text-dark";
             if(row.status === 'Zamówione') statusColor = "bg-primary";
             if(row.status === 'Dostarczone') statusColor = "bg-success";
             if(row.status === 'Odrzucone') statusColor = "bg-danger";
 
             tr.innerHTML = `
-                <td><span class="badge bg-dark">${row.dzial}</span></td>
-                <td class="fw-bold">${row.nazwa}</td>
-                <td><a href="${row.link}" target="_blank" class="btn btn-sm btn-outline-info">Otwórz Link</a></td>
-                <td>${row.ilosc}</td>
+                <td class="fw-bold">${row.produkt}</td>
+                <td><span class="badge bg-dark">${row.strefa}</span></td>
+                <td class="text-center">${row.ilosc}</td>
+                <td class="small">${row.dataZam}</td>
+                <td>${row.kto}</td>
+                <td><a href="${row.link}" target="_blank" class="btn btn-sm btn-outline-secondary">Link</a></td>
                 <td><span class="badge ${statusColor}">${row.status}</span></td>
-                <td>${actionButtons}</td>
+                <td style="min-width: 110px;">${actionButtons}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // 4. Aktualizacja statusu zamówienia w Excelu
-    async function updateStatus(id, newStatus) {
-        if(!confirm(`Czy na pewno chcesz zmienić status tego zamówienia na:\n"${newStatus}"?`)) return;
+    // --- ZMIANA STATUSU ---
+    async function updateStatus(idWiersza, newStatus) {
+        if(!confirm(`Zmienić status na:\n"${newStatus}"?`)) return;
 
         try {
             await fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'update', id: id, newStatus: newStatus }),
+                body: JSON.stringify({ action: 'update', id: idWiersza, newStatus: newStatus }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
-            loadData(); // Odświeża od razu tabelę
+            loadData(); // Odśwież widok
         } catch (error) {
-            alert('Błąd podczas aktualizacji: ' + error);
+            alert('Błąd: ' + error);
         }
     }
 </script>
