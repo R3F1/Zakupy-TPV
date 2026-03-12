@@ -3,242 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Zamówień TPV - Premium Edition</title>
+    <title>System Zamówień TPV - Dział Techniczny</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* --- GŁÓWNE ZMIENNE I TŁO --- */
         :root {
-            --primary-blue: #0061ff;
-            --secondary-blue: #60efff;
-            --urgent-red: #ff416c;
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --success-glow: rgba(34, 197, 94, 0.4);
+            --dark-glow: rgba(15, 23, 42, 0.3);
+            --bg-color: #f0f4f8; /* Bardzo jasny, chłodny niebieski */
+            --urgent-red: #ef4444;
         }
-
+        
         body { 
-            background: #f0f2f5; 
-            background-image: radial-gradient(at 0% 0%, rgba(0,97,255,0.05) 0, transparent 50%), 
-                              radial-gradient(at 100% 100%, rgba(96,239,255,0.1) 0, transparent 50%);
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            margin-top: 90px;
-            min-height: 100vh;
+            background-color: var(--bg-color); 
+            background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.05), transparent 25%),
+                              radial-gradient(circle at 85% 30%, rgba(14, 165, 233, 0.05), transparent 25%);
+            color: #1e293b;
+            font-family: 'Poppins', sans-serif;
+            margin-top: 80px; 
+            overflow-x: hidden;
         }
 
-        /* --- ANIMACJE --- */
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.98) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+        /* --- ANIMACJE (FADE IN & GLOW) --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 var(--primary-glow); }
+            70% { box-shadow: 0 0 15px 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        /* Animacja dla PILNYCH zamówień */
+        @keyframes pulseUrgent {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         .view-section { display: none; }
         .active-view { 
             display: block; 
-            animation: fadeInScale 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+            animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
         }
 
-        /* --- MODER LOOK (GLASSMORPHISM) --- */
+        /* --- NAVBAR (Efekt szkła) --- */
         .navbar-glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
         }
+        .navbar-brand { color: #0f172a !important; font-weight: 700; letter-spacing: 0.5px; }
+        .brand-icon { color: #3b82f6; text-shadow: 0 0 10px var(--primary-glow); }
 
-        .card-custom {
-            background: white;
-            border: none;
-            border-radius: 24px;
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
-            overflow: hidden;
+        /* --- KARTY (Glow & Hover) --- */
+        .card { 
+            border: none; 
+            border-radius: 20px; 
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 40px rgba(14, 165, 233, 0.08); 
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
         }
-
-        .card-header-gradient {
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-            color: white;
-            padding: 1.5rem;
-            border: none;
-            font-weight: 700;
+        .card:hover { 
+            box-shadow: 0 15px 50px rgba(59, 130, 246, 0.15); 
         }
-
-        /* --- STYLIZACJA TABELI --- */
-        .table-container {
-            border-radius: 16px;
-            overflow: hidden;
-            background: white;
-        }
-
-        .table thead th {
-            background: #f8f9fa;
-            color: #64748b;
-            font-size: 0.75rem;
+        .card-header { 
+            border-radius: 20px 20px 0 0 !important; 
+            font-weight: 600; 
+            letter-spacing: 1px; 
             text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 1rem;
-            border: none;
+            font-size: 0.85em;
+            border-bottom: none;
+            padding: 1.2rem;
         }
+        
+        /* Specjalne nagłówki kart */
+        .header-primary { background: linear-gradient(135deg, #3b82f6, #0ea5e9); color: white; }
+        .header-dark { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; }
 
-        /* Punkt 1: Wygląd zamówień PILNYCH */
-        .row-urgent {
-            background-color: rgba(255, 65, 108, 0.05) !important;
-            border-left: 5px solid var(--urgent-red) !important;
-        }
-
-        .badge-urgent {
-            background: linear-gradient(to right, #ff416c, #ff4b2b);
-            box-shadow: 0 0 10px rgba(255, 65, 108, 0.4);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* Punkt 5: Archiwum */
-        .archive-hidden { display: none !important; }
-
-        /* --- PRZYCISKI --- */
-        .btn-modern {
+        /* --- PRZYCISKI I INPUTY --- */
+        .form-control, .form-select {
             border-radius: 12px;
-            padding: 0.6rem 1.5rem;
-            font-weight: 600;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
             transition: all 0.3s ease;
+            background-color: #f8fafc;
         }
-
-        .btn-modern:hover {
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+            background-color: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
+        .input-group-text { border-radius: 12px 0 0 12px; border: 1px solid #e2e8f0; border-right: none; background: #f8fafc; }
+        
+        .btn { 
+            border-radius: 12px; 
+            font-weight: 600; 
+            padding: 0.6rem 1.2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            letter-spacing: 0.5px;
+        }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #0ea5e9); border: none; box-shadow: 0 4px 15px var(--primary-glow); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--primary-glow); }
+        
+        .btn-success { background: linear-gradient(135deg, #22c55e, #10b981); border: none; box-shadow: 0 4px 15px var(--success-glow); }
+        .btn-success:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--success-glow); }
 
-        .price-tag {
-            color: #0f172a;
-            font-weight: 700;
-            font-family: 'Courier New', monospace;
+        /* --- TABELA I ELEMENTY WENĘTRZNE --- */
+        .table-responsive { max-height: 60vh; overflow-y: auto; border-radius: 12px; }
+        .table { margin-bottom: 0; }
+        .table thead th { 
+            background-color: rgba(248, 250, 252, 0.95); 
+            border-bottom: 2px solid #e2e8f0; 
+            color: #64748b; 
+            text-transform: uppercase; 
+            font-size: 0.75em; 
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(5px);
         }
+        .table tbody td { vertical-align: middle; font-size: 0.9em; border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
+        .table-hover tbody tr:hover td { background-color: #f0f9ff; }
+        
+        .badge { padding: 0.6em 0.9em; font-size: 0.75em; border-radius: 8px; font-weight: 600; }
+        .powod-text { max-width: 180px; font-size: 0.85em; color: #ef4444; font-style: italic; line-height: 1.3; }
+
+        /* NOWE STYLE DLA PUNKTÓW 1, 2, 5 */
+        .row-urgent { background-color: rgba(239, 68, 68, 0.05) !important; border-left: 5px solid var(--urgent-red) !important; }
+        .badge-urgent { background-color: var(--urgent-red); animation: pulseUrgent 2s infinite; }
+        .price-tag { color: #0891b2; font-weight: 700; font-family: monospace; }
+        .archive-hidden { display: none !important; }
+        .form-check-input:checked { background-color: #0f172a; border-color: #0f172a; }
+
+        /* --- WYSZUKIWARKA (Glow focus) --- */
+        .filters-wrapper { background: #f8fafc; border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .search-container input { border-radius: 0 12px 12px 0; border-left: none; }
+        .search-container span { border-radius: 12px 0 0 12px; border-right: none; background: #fff; }
+
+        /* Niestandardowy pasek przewijania */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-glass fixed-top">
+<nav class="navbar navbar-expand-lg navbar-glass fixed-top py-3">
     <div class="container-fluid px-4">
-        <a class="navbar-brand d-flex align-items-center" href="#">
-            <div class="bg-primary text-white rounded-3 p-2 me-2 shadow-sm">
-                <i class="bi bi-box-seam-fill"></i>
-            </div>
-            <span class="fw-bold text-dark">System Zamówień <span class="text-primary">TPV</span></span>
-        </a>
-        <div id="logoutBar" class="view-section ms-auto">
-            <span class="me-3 small fw-bold text-muted" id="userGreeting"></span>
-            <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="logout()">
-                <i class="bi bi-power me-1"></i>Wyloguj
+        <span class="navbar-brand fs-5">
+            <i class="bi bi-hexagon-fill brand-icon me-2"></i> SYSTEM ZAMÓWIEŃ <span class="text-primary">TPV</span>
+        </span>
+        <div id="logoutBar" class="view-section text-end">
+            <span class="me-3 fw-bold text-secondary small" id="userGreeting"></span>
+            <button class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3" onclick="logout()">
+                <i class="bi bi-power"></i> Wyloguj
             </button>
         </div>
     </div>
 </nav>
 
-<div class="container-fluid px-4">
+<div class="container-fluid px-4 pb-5">
 
-    <div id="view-login" class="view-section active-view card-custom mx-auto mt-5 shadow" style="max-width: 400px;">
-        <div class="p-5 text-center">
-            <h3 class="fw-bold mb-4">Witaj ponownie</h3>
+    <div id="view-login" class="view-section active-view card mx-auto mt-5" style="max-width: 420px;">
+        <div class="card-header header-dark text-center py-4">
+            <div class="mb-2" style="animation: pulseGlow 2s infinite; display: inline-block; border-radius: 50%;">
+                <i class="bi bi-fingerprint fs-1 text-info"></i>
+            </div>
+            <h5 class="mb-0 mt-2 fw-bold text-white">AUTORYZACJA</h5>
+        </div>
+        <div class="card-body p-4 pt-5">
             <form id="loginForm">
-                <div class="text-start mb-3">
-                    <label class="small fw-bold text-muted mb-1">IDENTYFIKATOR</label>
-                    <input type="text" id="loginInput" class="form-control form-control-lg border-0 bg-light" placeholder="Np. Kierownik" required>
+                <div class="mb-4">
+                    <label class="form-label text-slate-500 fw-bold" style="font-size: 0.75em; color: #64748b;">IDENTYFIKATOR UŻYTKOWNIKA</label>
+                    <div class="input-group shadow-sm">
+                        <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                        <input type="text" id="loginInput" class="form-control" placeholder="Np. Kierownik" required>
+                    </div>
                 </div>
-                <div class="text-start mb-4">
-                    <label class="small fw-bold text-muted mb-1">HASŁO</label>
-                    <input type="password" id="passInput" class="form-control form-control-lg border-0 bg-light" placeholder="••••••" required>
+                <div class="mb-5">
+                    <label class="form-label text-slate-500 fw-bold" style="font-size: 0.75em; color: #64748b;">HASŁO DOSTĘPU</label>
+                    <div class="input-group shadow-sm">
+                        <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                        <input type="password" id="passInput" class="form-control" placeholder="••••••••" required>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-modern w-100 py-3 shadow">Zaloguj się</button>
+                <button type="submit" class="btn btn-primary w-100 py-3 fs-6" id="loginBtn">
+                    ZALOGUJ SIĘ <i class="bi bi-arrow-right-short fs-5 align-middle"></i>
+                </button>
             </form>
         </div>
     </div>
 
-    <div id="view-lider" class="view-section card-custom mx-auto mb-4" style="max-width: 1000px;">
-        <div class="card-header-gradient">
-            <i class="bi bi-plus-circle-fill me-2"></i>NOWE ZAPOTRZEBOWANIE
+    <div id="view-lider" class="view-section card mx-auto mb-5" style="max-width: 850px;">
+        <div class="card-header header-primary py-3 d-flex align-items-center">
+            <i class="bi bi-plus-circle-dotted fs-5 me-2"></i> Formularz Nowego Zapotrzebowania
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-4 p-md-5">
             <form id="orderForm" onsubmit="submitOrder(event)">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="small fw-bold text-muted">NAZWA PRODUKTU</label>
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <label class="form-label fw-bold text-muted small">PRODUKT / NAZWA RZECZY</label>
                         <input type="text" id="produkt" class="form-control" placeholder="Wpisz nazwę..." required>
                     </div>
-                    <div class="col-md-2">
-                        <label class="small fw-bold text-muted">DZIAŁ</label>
-                        <select id="strefa" class="form-select"><option value="OCR">OCR</option><option value="LCM">LCM</option><option value="LCDR">LCDR</option></select>
-                    </div>
-                    <div class="col-md-1">
-                        <label class="small fw-bold text-muted">ILOŚĆ</label>
-                        <input type="number" id="ilosc" class="form-control text-center" value="1" required>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="small fw-bold text-muted">PRIORYTET (Pkt 1)</label>
-                        <select id="priorytet" class="form-select fw-bold">
-                            <option value="Normalny">Normalny</option>
-                            <option value="PILNE" class="text-danger">🔥 PILNE</option>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small">STREFA</label>
+                        <select id="strefa" class="form-select" required>
+                            <option value="" disabled selected>Wybierz...</option>
+                            <option value="OCR">OCR</option>
+                            <option value="LCM">LCM</option>
+                            <option value="LCDR">LCDR</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label class="small fw-bold text-muted">SZACOWANA CENA (Pkt 2)</label>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold text-muted small">ILOŚĆ</label>
+                        <input type="number" id="ilosc" class="form-control text-center text-primary fw-bold" min="1" value="1" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted small text-danger">PRIORYTET</label>
+                        <select id="priorytet" class="form-select fw-bold">
+                            <option value="Normalny">Normalny</option>
+                            <option value="PILNE">🔥 PILNE</option>
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold text-muted small">SZACOWANA CENA (PLN)</label>
                         <div class="input-group">
-                            <input type="number" id="cena" class="form-control" placeholder="0.00">
-                            <span class="input-group-text">PLN</span>
+                            <span class="input-group-text"><i class="bi bi-currency-exchange"></i></span>
+                            <input type="number" id="cena" class="form-control" placeholder="Np. 150.00">
                         </div>
                     </div>
                     <div class="col-12">
-                        <label class="small fw-bold text-muted">LINK DO PRODUKTU</label>
-                        <input type="url" id="link" class="form-control" placeholder="https://..." required>
+                        <label class="form-label fw-bold text-muted small">LINK DO SKLEPU</label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text"><i class="bi bi-link-45deg text-primary"></i></span>
+                            <input type="url" id="link" class="form-control" placeholder="Wklej pełny adres URL (https://...)" required>
+                        </div>
                     </div>
-                    <div class="col-12 mt-4 text-end">
-                        <button type="submit" class="btn btn-success btn-modern shadow">Wyślij zamówienie</button>
+                    <div class="col-12 mt-4 pt-2 border-top">
+                        <button type="submit" class="btn btn-success float-end px-5 py-2 fs-6">
+                            Wyślij do akceptacji <i class="bi bi-send ms-2"></i>
+                        </button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="view-table" class="view-section card-custom shadow-sm mb-5">
-        <div class="bg-dark text-white p-4 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 fw-bold"><i class="bi bi-layers-half me-2"></i>REJESTR ZAMÓWIEŃ</h5>
+    <div id="view-table" class="view-section card shadow-sm mb-5">
+        <div class="card-header header-dark d-flex justify-content-between align-items-center py-3 px-4">
+            <span id="table-title" class="fs-6"><i class="bi bi-database me-2"></i> Baza Zgłoszeń</span>
             <div class="d-flex align-items-center gap-3">
-                <div class="form-check form-switch text-white mb-0">
-                    <input class="form-check-input shadow-none" type="checkbox" id="archiveSwitch" onchange="toggleArchive()">
-                    <label class="form-check-label small fw-bold" for="archiveSwitch">Pokaż Archiwum</label>
+                <div class="form-check form-switch text-white mb-0 me-2">
+                    <input class="form-check-input" type="checkbox" id="archiveSwitch" onchange="toggleArchive()">
+                    <label class="form-check-label small fw-bold" for="archiveSwitch">Archiwum</label>
                 </div>
-                <button class="btn btn-light btn-sm rounded-circle" onclick="loadData()"><i class="bi bi-arrow-clockwise"></i></button>
+                <button class="btn btn-sm btn-light text-dark fw-bold rounded-pill px-3 shadow-sm" onclick="loadData()">
+                    <i class="bi bi-arrow-clockwise text-primary"></i> Odśwież Dane
+                </button>
             </div>
         </div>
-        <div class="card-body p-4">
-            <div class="mb-4"><input type="text" id="searchInput" class="form-control rounded-pill px-4 border-0 bg-light" placeholder="Szybkie wyszukiwanie..."></div>
+        <div class="card-body p-3 p-md-4">
             
-            <div class="table-container border">
-                <table class="table table-hover align-middle text-center mb-0">
-                    <thead>
+            <div class="filters-wrapper d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="d-flex gap-2 flex-wrap" id="statusFilters">
+                    <span class="text-slate-400 small fw-bold mt-2 me-2 d-none d-md-block"><i class="bi bi-funnel"></i> FILTRY:</span>
+                    <button class="btn btn-dark btn-sm active rounded-pill px-3" onclick="filterByStatus('wszystkie', this)">Wszystkie</button>
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="filterByStatus('oczekujące', this)">Oczekujące</button>
+                    <button class="btn btn-outline-warning btn-sm rounded-pill px-3" onclick="filterByStatus('zaakceptowane', this)">Zaakceptowane</button>
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3" onclick="filterByStatus('zamówione', this)">Zamówione</button>
+                    <button class="btn btn-outline-success btn-sm rounded-pill px-3" onclick="filterByStatus('dostarczone', this)">Dostarczone</button>
+                </div>
+
+                <div class="input-group search-container shadow-sm" style="max-width: 280px;">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Szukaj...">
+                </div>
+            </div>
+
+            <div class="table-responsive border border-light">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="sticky-top">
                         <tr>
-                            <th>Produkt</th><th>Strefa</th><th>Ilość</th><th>Cena (Pkt 2)</th><th>Data</th><th>Kto</th><th>Status</th><th>Akcja</th>
+                            <th class="text-center" style="width: 50px;">L.p.</th>
+                            <th style="min-width: 220px;">Produkt</th>
+                            <th class="text-center">Strefa</th>
+                            <th class="text-center">Ilość</th>
+                            <th class="text-center">Cena</th>
+                            <th class="text-center">Data Zgłoszenia</th>
+                            <th class="text-center">Zgłasza</th>
+                            <th class="text-center">Link</th>
+                            <th class="text-center" style="min-width: 150px;">Status</th>
+                            <th>Uwagi / Powód</th>
+                            <th class="text-center" style="min-width: 140px;">Akcja</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
-                        <tr><td colspan="8" class="py-5">Pobieranie bazy danych...</td></tr>
+                        <tr><td colspan="11" class="text-center text-muted py-5">
+                            <div class="spinner-grow text-primary mb-3" role="status"></div>
+                            <div class="spinner-grow text-info mb-3" role="status" style="animation-delay: 0.2s"></div>
+                            <br><span class="fw-bold">Ładowanie danych z chmury...</span>
+                        </td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
 </div>
 
 <script>
-    // Konfiguracja
+    // ==========================================
+    // TWÓJ LINK Z GOOGLE APPS SCRIPT
+    // ==========================================
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwql25-MnPGsgy5IElCu_EJFvHA9OZpInNOPY47AeJUbaluFidAuKG0x9vGXD9R2SK4hg/exec'; 
-    let currentRole = '', currentUser = '', showArchive = false;
+    
+    let currentRole = 'none';
+    let currentUser = '';
+    let showArchive = false; // PUNKT 5
 
     const users = {
         'lider lcm': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCM' },
@@ -248,139 +337,289 @@
         'łukasz': { haslo: 'tpv12345!', rola: 'lukasz', nazwa: 'Łukasz' }
     };
 
-    // Obsługa logowania i sesji
     window.onload = () => {
-        const r = localStorage.getItem('userRole'), u = localStorage.getItem('userLogin');
-        if (r && u) setupInterface(r, u);
+        const savedRole = localStorage.getItem('userRole');
+        const savedLogin = localStorage.getItem('userLogin');
+        if (savedRole && savedLogin) {
+            setupInterface(savedRole, savedLogin);
+        }
     };
 
-    document.getElementById('loginForm').onsubmit = (e) => {
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const l = document.getElementById('loginInput').value.toLowerCase(), p = document.getElementById('passInput').value;
-        if (users[l] && users[l].haslo === p) {
-            localStorage.setItem('userRole', users[l].rola);
-            localStorage.setItem('userLogin', users[l].nazwa);
-            setupInterface(users[l].rola, users[l].nazwa);
-        } else alert('Błędne dane logowania!');
-    };
+        const inputLogin = document.getElementById('loginInput').value.trim().toLowerCase();
+        const pass = document.getElementById('passInput').value;
 
-    function setupInterface(role, user) {
-        currentRole = role; currentUser = user;
-        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
+        if (users[inputLogin] && users[inputLogin].haslo === pass) {
+            const rola = users[inputLogin].rola;
+            const ladnaNazwa = users[inputLogin].nazwa;
+            
+            localStorage.setItem('userRole', rola);
+            localStorage.setItem('userLogin', ladnaNazwa);
+            setupInterface(rola, ladnaNazwa);
+        } else {
+            const card = document.getElementById('view-login');
+            card.style.transform = 'translateX(-10px)';
+            setTimeout(() => card.style.transform = 'translateX(10px)', 100);
+            setTimeout(() => card.style.transform = 'translateX(0)', 200);
+            alert('Odmowa dostępu. Błędny identyfikator lub hasło!');
+        }
+    });
+
+    function setupInterface(role, login) {
+        currentRole = role;
+        currentUser = login;
+        
+        document.querySelectorAll('.view-section').forEach(el => {
+            el.classList.remove('active-view');
+            void el.offsetWidth; 
+        });
+        
         document.getElementById('logoutBar').classList.add('active-view');
-        document.getElementById('userGreeting').innerText = `Dzień dobry, ${user}`;
+        document.getElementById('userGreeting').innerHTML = `<i class="bi bi-person-check-fill text-success me-1"></i> ${login}`;
+
         document.getElementById('view-table').classList.add('active-view');
-        if (role === 'lider') document.getElementById('view-lider').classList.add('active-view');
+
+        if (currentRole === 'lider') {
+            document.getElementById('view-lider').classList.add('active-view');
+            document.getElementById('table-title').innerHTML = 'Historia Twoich Zgłoszeń';
+        } else if (currentRole === 'kierownik') {
+            document.getElementById('table-title').innerHTML = 'Centrum Akceptacji Zamówień';
+        } else if (currentRole === 'lukasz') {
+            document.getElementById('table-title').innerHTML = 'Panel Logistyki i Zakupów';
+        }
+        
         loadData();
     }
 
-    function logout() { localStorage.clear(); location.reload(); }
-
-    // Punkt 5: Przełącznik Archiwum
-    function toggleArchive() {
-        showArchive = document.getElementById('archiveSwitch').checked;
-        loadData(); // Odśwież widok
+    function logout() {
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userLogin');
+        location.reload(); 
     }
 
-    // Pobieranie i renderowanie
+    // NAPRAWIONE I ULEPSZONE FORMATOWANIE DATY
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr; 
+            
+            const dzien = String(d.getDate()).padStart(2, '0');
+            const miesiac = String(d.getMonth() + 1).padStart(2, '0');
+            const rok = d.getFullYear();
+            const godziny = String(d.getHours()).padStart(2, '0');
+            const minuty = String(d.getMinutes()).padStart(2, '0');
+            
+            return `${dzien}.${miesiac}.${rok}<br><small class="text-slate-400" style="color:#94a3b8; font-weight:500;">${godziny}:${minuty}</small>`;
+        } catch (e) { return dateStr; }
+    }
+
+    // PUNKT 5: ARCHIWUM
+    function toggleArchive() {
+        showArchive = document.getElementById('archiveSwitch').checked;
+        loadData();
+    }
+
+    async function submitOrder(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Przetwarzanie...';
+
+        const data = {
+            action: 'add',
+            produkt: document.getElementById('produkt').value,
+            strefa: document.getElementById('strefa').value,
+            ilosc: document.getElementById('ilosc').value,
+            link: document.getElementById('link').value,
+            kto: currentUser,
+            priorytet: document.getElementById('priorytet').value, // Punkt 1
+            cena: document.getElementById('cena').value // Punkt 2
+        };
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+            });
+            e.target.reset();
+            loadData(); 
+            document.getElementById('view-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (error) {
+            alert('Błąd systemu: ' + error);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+
     async function loadData() {
         const tbody = document.getElementById('ordersTableBody');
+        tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-5"><div class="spinner-grow text-primary mb-3"></div><br><span class="fw-bold">Pobieranie bezpiecznych danych...</span></td></tr>';
+        
         try {
-            const res = await fetch(SCRIPT_URL);
-            const data = await res.json();
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
             renderTable(data);
-        } catch (e) { tbody.innerHTML = 'Błąd połączenia z bazą.'; }
+            
+            document.getElementById('searchInput').value = "";
+            const allBtn = document.querySelector('#statusFilters button');
+            if(allBtn && !document.getElementById('searchInput').value) filterByStatus('wszystkie', allBtn);
+            
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="11" class="text-danger text-center py-5"><i class="bi bi-shield-x fs-1 d-block mb-2 text-danger"></i><span class="fw-bold">Brak połączenia z chmurą Google.</span></td></tr>';
+        }
     }
 
     function renderTable(data) {
         const tbody = document.getElementById('ordersTableBody');
         tbody.innerHTML = '';
+
+        if(data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-5"><i class="bi bi-clipboard-x fs-1 d-block mb-3 text-slate-300"></i>Brak aktywnych zamówień</td></tr>';
+            return;
+        }
+
+        let lpCounter = 1;
         
-        data.reverse().forEach(row => {
-            // Punkt 5: Filtracja archiwum
+        data.reverse().forEach(row => { 
+            // PUNKT 5: FILTROWANIE ARCHIWUM
             if (!showArchive && row.status === 'Dostarczone') return;
 
-            const tr = document.createElement('tr');
+            let tr = document.createElement('tr');
+            tr.setAttribute('data-status', row.status.toLowerCase());
             
-            // Punkt 1: Styl dla PILNYCH
+            // PUNKT 1: WIZUALIZACJA PILNYCH
             if (row.priorytet === 'PILNE') tr.className = 'row-urgent';
-
-            const pBadge = row.priorytet === 'PILNE' ? '<span class="badge badge-urgent me-2">PILNE</span>' : '';
             
-            // Punkt 3: Akcje (w tym Anuluj dla Lidera)
-            let action = '-';
+            let actionButtons = '-';
+            
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
-                action = `<button class="btn btn-sm btn-success me-1 rounded-pill" onclick="updateStatus(${row.id}, 'Zaakceptowane')">Akceptuj</button>
-                          <button class="btn btn-sm btn-danger rounded-pill" onclick="rejectOrder(${row.id})">Odrzuć</button>`;
+                actionButtons = `
+                    <button class="btn btn-sm btn-success w-100 mb-1 rounded-pill" onclick="updateStatus(${row.id}, 'Zaakceptowane')"><i class="bi bi-check-lg"></i> Akceptuj</button>
+                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill bg-white" onclick="rejectOrder(${row.id})"><i class="bi bi-x-lg"></i> Odrzuć</button>
+                `;
             } else if (currentRole === 'lider' && row.status === 'Oczekujące' && row.kto === currentUser) {
-                // Punkt 3: Możliwość anulowania przez Lidera
-                action = `<button class="btn btn-sm btn-outline-danger border-0" onclick="deleteOrder(${row.id})"><i class="bi bi-trash-fill"></i> Anuluj</button>`;
+                // PUNKT 3: ANULOWANIE DLA LIDERA
+                actionButtons = `<button class="btn btn-sm btn-outline-danger w-100 rounded-pill" onclick="deleteOrder(${row.id})"><i class="bi bi-trash"></i> Anuluj</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
-                action = `<button class="btn btn-sm btn-primary rounded-pill" onclick="updateStatus(${row.id}, 'Zamówione')">Zamówione</button>`;
+                actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill" onclick="updateStatus(${row.id}, 'Zamówione')"><i class="bi bi-cart-check"></i> Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                action = `<button class="btn btn-sm btn-info text-white rounded-pill" onclick="updateStatus(${row.id}, 'Dostarczone')">Dostarczone</button>`;
+                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill" onclick="updateStatus(${row.id}, 'Dostarczone')" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Dostarczono</button>`;
             }
 
+            let statusColor = "bg-secondary";
+            let statusIcon = "bi-clock-history";
+            if(row.status === 'Zaakceptowane') { statusColor = "bg-warning text-dark"; statusIcon = "bi-check2-all"; }
+            if(row.status === 'Zamówione') { statusColor = "bg-primary"; statusIcon = "bi-truck"; }
+            if(row.status === 'Dostarczone') { statusColor = "bg-success"; statusIcon = "bi-box-seam-fill"; }
+            if(row.status === 'Odrzucone') { statusColor = "bg-danger"; statusIcon = "bi-shield-fill-x"; }
+
+            const pBadge = row.priorytet === 'PILNE' ? '<span class="badge badge-urgent me-1">PILNE</span>' : '';
+            const cenaWidok = row.cena ? `<span class="price-tag">${row.cena} PLN</span>` : '-';
+
             tr.innerHTML = `
-                <td class="text-start fw-bold">${pBadge}${row.produkt}</td>
-                <td><span class="badge bg-light text-dark border">${row.strefa}</span></td>
-                <td class="fw-bold">${row.ilosc}</td>
-                <td class="price-tag text-primary">${row.cena ? row.cena + ' PLN' : '-'}</td>
-                <td class="small text-muted">${formatDate(row.dataZam)}</td>
-                <td class="small">${row.kto}</td>
-                <td><span class="badge bg-dark rounded-pill px-3">${row.status}</span></td>
-                <td>${action}</td>
+                <td class="text-center text-muted fw-bold small" style="color: #cbd5e1;">#${lpCounter++}</td>
+                <td class="fw-bold text-dark">${pBadge}${row.produkt}</td>
+                <td class="text-center"><span class="badge bg-light text-dark border border-secondary-subtle px-3 py-2 rounded-pill shadow-sm">${row.strefa}</span></td>
+                <td class="text-center fw-bold fs-6 text-primary">${row.ilosc}</td>
+                <td class="text-center">${cenaWidok}</td>
+                <td class="text-center align-middle" style="line-height: 1.2;">${formatDate(row.dataZam)}</td>
+                <td class="text-center small fw-medium"><i class="bi bi-person-circle text-primary me-1"></i>${row.kto}</td>
+                <td class="text-center"><a href="${row.link}" target="_blank" class="btn btn-sm btn-light border text-primary rounded-pill px-3 transition-transform"><i class="bi bi-link-45deg fs-6"></i> Sklep</a></td>
+                <td class="text-center"><span class="badge ${statusColor} w-100 py-2 rounded-pill shadow-sm"><i class="bi ${statusIcon} me-1"></i>${row.status}</span></td>
+                <td><div class="powod-text">${row.powod}</div></td>
+                <td class="text-center align-middle">${actionButtons}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // Pomocnicze funkcje daty i wysyłki
-    function formatDate(s) {
-        if (!s) return '-';
-        const d = new Date(s);
-        return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    function filterByStatus(statusName, btnElement) {
+        const buttons = document.querySelectorAll('#statusFilters button');
+        buttons.forEach(b => {
+            b.classList.remove('btn-dark', 'text-white', 'shadow-sm');
+            const colorClass = b.classList[1].replace('btn-', 'btn-outline-');
+            if(!b.classList.contains(colorClass)) b.classList.add(colorClass);
+            b.classList.remove('active');
+        });
+        
+        btnElement.classList.remove(/btn-outline-[a-z]+/);
+        btnElement.classList.add('btn-dark', 'text-white', 'active', 'shadow-sm');
+
+        const rows = document.querySelectorAll('#ordersTableBody tr');
+        rows.forEach(row => {
+            if(statusName === 'wszystkie') {
+                row.style.display = "";
+            } else {
+                const rowStatus = row.getAttribute('data-status');
+                if(rowStatus === statusName) {
+                    row.style.display = "";
+                    row.style.animation = "none";
+                    setTimeout(() => row.style.animation = "fadeInUp 0.3s ease forwards", 10);
+                } else {
+                    row.style.display = "none";
+                }
+            }
+        });
     }
 
-    async function submitOrder(e) {
-        e.preventDefault();
-        const btn = e.target.querySelector('button'); btn.disabled = true;
-        const data = {
-            action: 'add', 
-            produkt: document.getElementById('produkt').value,
-            strefa: document.getElementById('strefa').value, 
-            ilosc: document.getElementById('ilosc').value,
-            link: document.getElementById('link').value, 
-            kto: currentUser,
-            priorytet: document.getElementById('priorytet').value,
-            cena: document.getElementById('cena').value
-        };
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
-        e.target.reset(); loadData(); btn.disabled = false;
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const value = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#ordersTableBody tr');
+        const allBtn = document.querySelector('#statusFilters button:first-child');
+        if(allBtn) filterByStatus('wszystkie', allBtn);
+        rows.forEach(row => {
+            const textContent = row.innerText.toLowerCase();
+            row.style.display = textContent.includes(value) ? "" : "none";
+        });
+    });
+
+    function rejectOrder(idWiersza) {
+        const powod = prompt("Odrzucasz zamówienie. Podaj powód dla Lidera (Wymagane):");
+        if (powod === null) return; 
+        if (powod.trim() === "") { alert("Musisz podać powód!"); return; }
+        updateStatus(idWiersza, 'Odrzucone', powod);
     }
 
-    async function updateStatus(id, stat, reason = '') {
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'update', id, newStatus: stat, reason }) });
+    // PUNKT 3: USUWANIE
+    async function deleteOrder(id) {
+        if (!confirm('Czy na pewno chcesz anulować to zgłoszenie?')) return;
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id }) });
         loadData();
     }
 
-    async function deleteOrder(id) {
-        if (confirm('Czy na pewno chcesz anulować to zgłoszenie?')) {
-            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id }) });
-            loadData();
-        }
-    }
-
-    function rejectOrder(id) {
-        const p = prompt("Podaj powód odrzucenia:");
-        if (p) updateStatus(id, 'Odrzucone', p);
-    }
-
-    document.getElementById('searchInput').onkeyup = function() {
-        let v = this.value.toLowerCase();
-        document.querySelectorAll('#ordersTableBody tr').forEach(r => {
-            r.style.display = r.innerText.toLowerCase().includes(v) ? "" : "none";
+    async function updateStatus(idWiersza, newStatus, reason = '') {
+        if(newStatus !== 'Odrzucone' && !confirm(`Potwierdzasz zmianę na: "${newStatus}"?`)) return;
+        let clickedRow;
+        const rows = document.querySelectorAll('#ordersTableBody tr');
+        rows.forEach(tr => {
+            const btn = tr.querySelector(`button[onclick*="updateStatus(${idWiersza}"]`) || tr.querySelector(`button[onclick*="rejectOrder(${idWiersza})"]`);
+            if (btn) clickedRow = tr;
         });
+        if (clickedRow) {
+            clickedRow.style.opacity = '0.4';
+            clickedRow.style.filter = 'grayscale(100%)';
+            clickedRow.style.pointerEvents = 'none'; 
+        }
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'update', id: idWiersza, newStatus: newStatus, reason: reason }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            loadData();
+        } catch (error) {
+            alert('Błąd komunikacji: ' + error);
+            if (clickedRow) {
+                clickedRow.style.opacity = '1';
+                clickedRow.style.filter = 'none';
+                clickedRow.style.pointerEvents = 'auto';
+            }
+        }
     }
 </script>
 </body>
