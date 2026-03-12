@@ -3,97 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Zamówień Wewnętrznych</title>
+    <title>System Zamówień - Dział Techniczny</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
     <style>
+        body { 
+            background-color: #f4f7f6; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        .navbar-custom {
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
         .view-section { display: none; }
         .active-view { display: block; }
-        .table-responsive { max-height: 600px; overflow-y: auto; }
-        /* Drobny styl, żeby długie powody zawijały się w tabeli */
-        .powod-text { max-width: 200px; white-space: normal; font-size: 0.85em; }
+        .table-responsive { max-height: 650px; overflow-y: auto; }
+        
+        /* Stylizowanie kart i przycisków */
+        .card { border: none; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .card-header { border-radius: 12px 12px 0 0 !important; font-weight: 600; letter-spacing: 0.5px; }
+        .btn { border-radius: 8px; font-weight: 500; }
+        
+        /* Stylizowanie tabeli */
+        .table thead th { background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; color: #495057; text-transform: uppercase; font-size: 0.85em; }
+        .powod-text { max-width: 200px; white-space: normal; font-size: 0.85em; color: #dc3545; font-style: italic; }
+        .badge { padding: 0.5em 0.7em; font-size: 0.8em; border-radius: 6px; }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container-fluid mt-4 px-4 pb-5">
-    <h2 class="mb-4 text-center">System Zamówień - Dział Techniczny</h2>
-
-    <div id="logoutBar" class="text-end mb-3 view-section">
-        <span class="me-3 fw-bold" id="userGreeting"></span>
-        <button class="btn btn-sm btn-outline-danger" onclick="logout()">Wyloguj</button>
+<nav class="navbar navbar-expand-lg navbar-custom mb-4 py-3">
+    <div class="container-fluid px-4">
+        <span class="navbar-brand text-white fw-bold">
+            <i class="bi bi-cart-check-fill me-2"></i> System Zamówień TPV
+        </span>
+        <div id="logoutBar" class="view-section text-white">
+            <span class="me-3 fw-bold" id="userGreeting" style="font-size: 0.95em;"></span>
+            <button class="btn btn-sm btn-light text-danger fw-bold" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i> Wyloguj
+            </button>
+        </div>
     </div>
+</nav>
 
-    <div id="view-login" class="view-section active-view card mx-auto shadow-sm" style="max-width: 400px;">
-        <div class="card-header bg-dark text-white text-center">Logowanie do systemu</div>
-        <div class="card-body">
+<div class="container-fluid px-4 pb-5">
+
+    <div id="view-login" class="view-section active-view card mx-auto mt-5" style="max-width: 420px;">
+        <div class="card-header bg-dark text-white text-center py-3">
+            <i class="bi bi-person-badge fs-3 d-block mb-2"></i>
+            Logowanie do systemu
+        </div>
+        <div class="card-body p-4">
             <form id="loginForm">
                 <div class="mb-3">
-                    <label class="form-label">Nazwa użytkownika</label>
-                    <input type="text" id="loginInput" class="form-control" placeholder="Np. Lider LCM" required>
+                    <label class="form-label text-muted fw-bold small">NAZWA UŻYTKOWNIKA</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                        <input type="text" id="loginInput" class="form-control" placeholder="Np. Lider LCM" required>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Hasło</label>
-                    <input type="password" id="passInput" class="form-control" placeholder="Wpisz hasło..." required>
+                <div class="mb-4">
+                    <label class="form-label text-muted fw-bold small">HASŁO</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                        <input type="password" id="passInput" class="form-control" placeholder="Wpisz hasło..." required>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary w-100" id="loginBtn">Zaloguj się</button>
+                <button type="submit" class="btn btn-primary w-100 py-2 fs-5" id="loginBtn">
+                    Zaloguj się <i class="bi bi-arrow-right-circle ms-1"></i>
+                </button>
             </form>
         </div>
     </div>
 
-    <div id="view-lider" class="view-section card shadow-sm mx-auto mb-4" style="max-width: 600px;">
-        <div class="card-header bg-primary text-white">Panel Lidera - Nowe Zamówienie</div>
-        <div class="card-body">
+    <div id="view-lider" class="view-section card mx-auto mb-4" style="max-width: 600px;">
+        <div class="card-header bg-primary text-white py-3">
+            <i class="bi bi-plus-circle me-1"></i> Panel Lidera - Nowe Zamówienie
+        </div>
+        <div class="card-body p-4">
             <form id="orderForm" onsubmit="submitOrder(event)">
-                <div class="mb-3">
-                    <label class="form-label">Produkt</label>
-                    <input type="text" id="produkt" class="form-control" placeholder="Nazwa zamawianej rzeczy" required>
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label fw-bold small text-muted">PRODUKT</label>
+                        <input type="text" id="produkt" class="form-control" placeholder="Nazwa zamawianej rzeczy" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold small text-muted">STREFA</label>
+                        <select id="strefa" class="form-select" required>
+                            <option value="" disabled selected>Wybierz...</option>
+                            <option value="OCR">OCR</option>
+                            <option value="LCM">LCM</option>
+                            <option value="LCDR">LCDR</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Strefa</label>
-                    <select id="strefa" class="form-select" required>
-                        <option value="" disabled selected>Wybierz strefę...</option>
-                        <option value="OCR">OCR</option>
-                        <option value="LCM">LCM</option>
-                        <option value="LCDR">LCDR</option>
-                    </select>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold small text-muted">ILOŚĆ</label>
+                        <input type="number" id="ilosc" class="form-control" min="1" value="1" required>
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label fw-bold small text-muted">LINK</label>
+                        <input type="url" id="link" class="form-control" placeholder="https://..." required>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Ilość</label>
-                    <input type="number" id="ilosc" class="form-control" min="1" value="1" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Link</label>
-                    <input type="url" id="link" class="form-control" placeholder="https://..." required>
-                </div>
-                <button type="submit" class="btn btn-success w-100">Dodaj do listy zamówień</button>
+                <button type="submit" class="btn btn-success w-100 py-2 mt-2">
+                    <i class="bi bi-cart-plus me-1"></i> Dodaj do listy zamówień
+                </button>
             </form>
         </div>
     </div>
 
     <div id="view-table" class="view-section card shadow-sm">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <span id="table-title">Baza Zgłoszeń</span>
-            <button class="btn btn-sm btn-outline-light" onclick="loadData()">Odśwież listę</button>
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+            <span id="table-title" class="fs-5"><i class="bi bi-list-ul me-2"></i> Baza Zgłoszeń</span>
+            <button class="btn btn-sm btn-outline-light" onclick="loadData()">
+                <i class="bi bi-arrow-clockwise"></i> Odśwież listę
+            </button>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle mb-0">
-                    <thead class="table-light sticky-top">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="sticky-top">
                         <tr>
-                            <th>Produkt</th>
+                            <th class="ps-3">Produkt</th>
                             <th>Strefa</th>
-                            <th>Ilość</th>
+                            <th class="text-center">Ilość</th>
                             <th>Data</th>
                             <th>Kto</th>
                             <th>Link</th>
                             <th>Status</th>
                             <th>Uwagi / Powód</th>
-                            <th>Akcja</th>
+                            <th class="text-center pe-3">Akcja</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
-                        <tr><td colspan="9" class="text-center text-muted py-3">Ładowanie danych...</td></tr>
+                        <tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Ładowanie danych...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -106,7 +152,7 @@
     // ==========================================
     // TWÓJ LINK Z GOOGLE APPS SCRIPT
     // ==========================================
-   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmcUfWAvqPCiTzt55VSCZM_tVJJShRTAL28JT6nINYQSFBGVFEVSzLi3plClmmwE65jg/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmcUfWAvqPCiTzt55VSCZM_tVJJShRTAL28JT6nINYQSFBGVFEVSzLi3plClmmwE65jg/exec'; 
     
     let currentRole = 'none';
     let currentUser = '';
@@ -150,19 +196,17 @@
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
         
         document.getElementById('logoutBar').classList.add('active-view');
-        document.getElementById('userGreeting').innerText = `Zalogowano: ${login}`;
+        document.getElementById('userGreeting').innerHTML = `<i class="bi bi-person-circle me-1"></i> Zalogowano: ${login}`;
 
-        // UWAGA: Tabela (view-table) jest teraz aktywna dla KAŻDEGO
         document.getElementById('view-table').classList.add('active-view');
 
-        // Formularz (view-lider) aktywny tylko dla liderów
         if (currentRole === 'lider') {
             document.getElementById('view-lider').classList.add('active-view');
-            document.getElementById('table-title').innerText = 'Lista wszystkich zamówień';
+            document.getElementById('table-title').innerHTML = '<i class="bi bi-list-ul me-2"></i> Lista Twoich i pozostałych zamówień';
         } else if (currentRole === 'kierownik') {
-            document.getElementById('table-title').innerText = 'Panel Akceptacji - Kierownik';
+            document.getElementById('table-title').innerHTML = '<i class="bi bi-ui-checks me-2"></i> Panel Akceptacji - Kierownik';
         } else if (currentRole === 'lukasz') {
-            document.getElementById('table-title').innerText = 'Panel Realizacji - Łukasz';
+            document.getElementById('table-title').innerHTML = '<i class="bi bi-truck me-2"></i> Panel Realizacji - Łukasz';
         }
         
         loadData();
@@ -174,13 +218,30 @@
         location.reload(); 
     }
 
+    // --- FUNKCJA NAPRAWIAJĄCA BRZYDKĄ DATĘ ---
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        // Jeśli to już jest nasza tekstowa data z kropkami, zostaw ją
+        if (typeof dateStr === 'string' && dateStr.includes('.')) return dateStr;
+        
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr; // Jeśli błąd, zwróć oryginał
+            return d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + 
+                   d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute:'2-digit' });
+        } catch (e) {
+            return dateStr;
+        }
+    }
+
     // --- WYSYŁANIE ZAMÓWIENIA ---
     async function submitOrder(e) {
         e.preventDefault();
         
         const btn = e.target.querySelector('button');
+        const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerText = "Wysyłanie...";
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wysyłanie...';
 
         const data = {
             action: 'add',
@@ -197,28 +258,27 @@
                 body: JSON.stringify(data),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
             });
-            alert('Dodano zamówienie!');
             e.target.reset();
-            loadData(); // Odśwież tabelę automatycznie po dodaniu
+            loadData(); 
         } catch (error) {
             alert('Błąd: ' + error);
         } finally {
             btn.disabled = false;
-            btn.innerText = "Dodaj do listy zamówień";
+            btn.innerHTML = originalText;
         }
     }
 
     // --- POBIERANIE DANYCH ---
     async function loadData() {
         const tbody = document.getElementById('ordersTableBody');
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center py-3">Ładowanie z serwera...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Pobieranie najnowszych danych...</td></tr>';
         
         try {
             const response = await fetch(SCRIPT_URL);
             const data = await response.json();
             renderTable(data);
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-danger text-center py-3">Błąd pobierania danych. Zaktualizowałeś Apps Script?</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-danger text-center py-4"><i class="bi bi-exclamation-triangle-fill me-2"></i>Błąd pobierania danych.</td></tr>';
             console.error(error);
         }
     }
@@ -229,7 +289,7 @@
         tbody.innerHTML = '';
 
         if(data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-3">Brak zamówień w bazie</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4"><i class="bi bi-inbox fs-4 d-block mb-2"></i>Brak zamówień w bazie</td></tr>';
             return;
         }
 
@@ -239,59 +299,61 @@
             
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
                 actionButtons = `
-                    <button class="btn btn-sm btn-success w-100 mb-1" onclick="updateStatus(${row.id}, 'Zaakceptowane')">Akceptuj</button>
-                    <button class="btn btn-sm btn-danger w-100" onclick="rejectOrder(${row.id})">Odrzuć</button>
+                    <button class="btn btn-sm btn-success w-100 mb-1" onclick="updateStatus(${row.id}, 'Zaakceptowane')"><i class="bi bi-check-circle"></i> Akceptuj</button>
+                    <button class="btn btn-sm btn-danger w-100" onclick="rejectOrder(${row.id})"><i class="bi bi-x-circle"></i> Odrzuć</button>
                 `;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
-                actionButtons = `<button class="btn btn-sm btn-primary w-100" onclick="updateStatus(${row.id}, 'Zamówione')">Kupione</button>`;
+                actionButtons = `<button class="btn btn-sm btn-primary w-100" onclick="updateStatus(${row.id}, 'Zamówione')"><i class="bi bi-cart-check"></i> Oznacz Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                actionButtons = `<button class="btn btn-sm btn-info w-100" onclick="updateStatus(${row.id}, 'Dostarczone')">Dostarczono</button>`;
+                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white" onclick="updateStatus(${row.id}, 'Dostarczone')"><i class="bi bi-box-seam"></i> Dostarczono</button>`;
             }
 
             let statusColor = "bg-secondary";
-            if(row.status === 'Zaakceptowane') statusColor = "bg-warning text-dark";
-            if(row.status === 'Zamówione') statusColor = "bg-primary";
-            if(row.status === 'Dostarczone') statusColor = "bg-success";
-            if(row.status === 'Odrzucone') statusColor = "bg-danger";
+            let statusIcon = "bi-hourglass-split";
+            if(row.status === 'Zaakceptowane') { statusColor = "bg-warning text-dark"; statusIcon = "bi-check2-circle"; }
+            if(row.status === 'Zamówione') { statusColor = "bg-primary"; statusIcon = "bi-cart-check"; }
+            if(row.status === 'Dostarczone') { statusColor = "bg-success"; statusIcon = "bi-box-seam"; }
+            if(row.status === 'Odrzucone') { statusColor = "bg-danger"; statusIcon = "bi-x-octagon"; }
+
+            // FORMATOWANIE DATY PRZED WYŚWIETLENIEM
+            const ladnaData = formatDate(row.dataZam);
 
             tr.innerHTML = `
-                <td class="fw-bold">${row.produkt}</td>
+                <td class="fw-bold ps-3">${row.produkt}</td>
                 <td><span class="badge bg-dark">${row.strefa}</span></td>
-                <td class="text-center">${row.ilosc}</td>
-                <td class="small">${row.dataZam}</td>
-                <td>${row.kto}</td>
-                <td><a href="${row.link}" target="_blank" class="btn btn-sm btn-outline-secondary">Link</a></td>
-                <td><span class="badge ${statusColor}">${row.status}</span></td>
-                <td><div class="powod-text text-danger fw-bold">${row.powod}</div></td>
-                <td style="min-width: 110px;">${actionButtons}</td>
+                <td class="text-center fw-bold fs-6">${row.ilosc}</td>
+                <td class="small text-muted"><i class="bi bi-calendar3 me-1"></i>${ladnaData}</td>
+                <td><i class="bi bi-person me-1"></i>${row.kto}</td>
+                <td><a href="${row.link}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-link-45deg"></i> Link</a></td>
+                <td><span class="badge ${statusColor}"><i class="bi ${statusIcon} me-1"></i>${row.status}</span></td>
+                <td><div class="powod-text">${row.powod}</div></td>
+                <td class="pe-3" style="min-width: 130px;">${actionButtons}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // --- SPECJALNA FUNKCJA DO ODRZUCANIA (wymusza powód) ---
+    // --- SPECJALNA FUNKCJA DO ODRZUCANIA ---
     function rejectOrder(idWiersza) {
         const powod = prompt("Podaj powód odrzucenia (To pole jest wymagane!):");
         
-        if (powod === null) {
-            // Anulowano okienko (Esc)
-            return; 
-        } else if (powod.trim() === "") {
-            // Zostawiono puste
-            alert("Nie możesz odrzucić zamówienia bez podania powodu!");
+        if (powod === null) return; 
+        if (powod.trim() === "") {
+            alert("Musisz podać powód odrzucenia!");
             return;
         }
 
-        // Jeśli jest powód, wysyłamy status Odrzucone z powodem
         updateStatus(idWiersza, 'Odrzucone', powod);
     }
 
-    // --- ZMIANA STATUSU (ze wsparciem dla wysyłania powodu) ---
+    // --- ZMIANA STATUSU ---
     async function updateStatus(idWiersza, newStatus, reason = '') {
-        // Pytamy o potwierdzenie tylko jeśli to nie jest odrzucenie (bo tam już było okienko)
-        if(newStatus !== 'Odrzucone' && !confirm(`Zmienić status na:\n"${newStatus}"?`)) return;
+        if(newStatus !== 'Odrzucone' && !confirm(`Czy na pewno chcesz zmienić status na: "${newStatus}"?`)) return;
 
         try {
+            // Dodajemy na chwilę klasę wyszarzającą tabelę, żeby było widać, że coś się dzieje
+            document.getElementById('ordersTableBody').style.opacity = '0.5';
+            
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'update', id: idWiersza, newStatus: newStatus, reason: reason }),
@@ -299,7 +361,8 @@
             });
             loadData(); 
         } catch (error) {
-            alert('Błąd: ' + error);
+            alert('Błąd aktualizacji: ' + error);
+            document.getElementById('ordersTableBody').style.opacity = '1';
         }
     }
 </script>
