@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        /* Prosty styl, który pozwala nam ukrywać i pokazywać odpowiednie ekrany */
         .view-section { display: none; }
         .active-view { display: block; }
     </style>
@@ -18,7 +17,7 @@
     <h2 class="mb-4 text-center">System Zamówień - Dział Techniczny</h2>
 
     <div id="logoutBar" class="text-end mb-3 view-section">
-        <span class="me-3 fw-bold" id="userGreeting">Zalogowano jako: (tutaj bedzie login)</span>
+        <span class="me-3 fw-bold" id="userGreeting"></span>
         <button class="btn btn-sm btn-outline-danger" onclick="logout()">Wyloguj</button>
     </div>
 
@@ -27,8 +26,8 @@
         <div class="card-body">
             <form id="loginForm">
                 <div class="mb-3">
-                    <label class="form-label">Login</label>
-                    <input type="text" id="loginInput" class="form-control" placeholder="Wpisz login..." required>
+                    <label class="form-label">Nazwa użytkownika</label>
+                    <input type="text" id="loginInput" class="form-control" placeholder="Np. Lider" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Hasło</label>
@@ -42,7 +41,7 @@
     <div id="view-lider" class="view-section card shadow-sm">
         <div class="card-header bg-primary text-white">Panel Lidera - Nowe Zamówienie</div>
         <div class="card-body">
-            <form id="orderForm">
+            <form id="orderForm" onsubmit="submitOrder(event)">
                 <div class="mb-3">
                     <label class="form-label">Dział</label>
                     <select id="dzial" class="form-select" required>
@@ -54,11 +53,11 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Nazwa przedmiotu</label>
-                    <input type="text" id="nazwa" class="form-control" placeholder="Np. Płyn do czyszczenia matryc" required>
+                    <input type="text" id="nazwa" class="form-control" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Link do produktu</label>
-                    <input type="url" id="link" class="form-control" placeholder="https://..." required>
+                    <input type="url" id="link" class="form-control" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Ilość</label>
@@ -75,7 +74,7 @@
             <button class="btn btn-sm btn-outline-secondary mb-3" onclick="loadData()">Odśwież listę</button>
             
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table class="table table-striped table-hover align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Dział</th>
@@ -87,7 +86,7 @@
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
-                        <tr><td colspan="6" class="text-center text-muted">Brak danych do wyświetlenia. Zaloguj się.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted">Ładowanie danych...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -97,8 +96,183 @@
 </div>
 
 <script>
-    // Tu będzie nasz kod ożywiający stronę
-</script>
+    // ==========================================
+    // TUTAJ WKLEISZ LINK Z GOOGLE APPS SCRIPT
+    // ==========================================
+    const SCRIPT_URL = 'TUTAJ_WKLEJ_SWOJ_LINK'; 
+    
+    let currentRole = 'none';
 
+    // BAZA UŻYTKOWNIKÓW Z TWOJEGO ZDJĘCIA
+    const users = {
+        'Lider': { haslo: 'tpv12345!', rola: 'lider' },
+        'Kierownik': { haslo: 'tpv12345!', rola: 'kierownik' },
+        'Łukasz': { haslo: 'tpv12345!', rola: 'lukasz' }
+    };
+
+    // --- LOGIKA LOGOWANIA ---
+    window.onload = () => {
+        const savedRole = localStorage.getItem('userRole');
+        const savedLogin = localStorage.getItem('userLogin');
+        if (savedRole && savedLogin) {
+            setupInterface(savedRole, savedLogin);
+        }
+    };
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const login = document.getElementById('loginInput').value.trim();
+        const pass = document.getElementById('passInput').value;
+
+        if (users[login] && users[login].haslo === pass) {
+            const rola = users[login].rola;
+            localStorage.setItem('userRole', rola);
+            localStorage.setItem('userLogin', login);
+            setupInterface(rola, login);
+        } else {
+            alert('Błędny login lub hasło! Pamiętaj o wielkości liter (np. "Łukasz").');
+        }
+    });
+
+    function setupInterface(role, login) {
+        currentRole = role;
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
+        
+        document.getElementById('logoutBar').classList.add('active-view');
+        document.getElementById('userGreeting').innerText = `Zalogowano jako: ${login}`;
+
+        if (currentRole === 'lider') {
+            document.getElementById('view-lider').classList.add('active-view');
+        } else if (currentRole === 'kierownik' || currentRole === 'lukasz') {
+            document.getElementById('view-table').classList.add('active-view');
+            document.getElementById('table-title').innerText = currentRole === 'kierownik' ? 'Panel Kierownika - Akceptacja Zamówień' : 'Panel Łukasza - Realizacja Zamówień';
+            if(SCRIPT_URL !== 'TUTAJ_WKLEJ_SWOJ_LINK') {
+                loadData();
+            } else {
+                document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="6" class="text-center text-danger fw-bold">Brak podpiętego linku do Google Sheets!</td></tr>';
+            }
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userLogin');
+        location.reload(); 
+    }
+
+    // --- LOGIKA BAZY DANYCH (GOOGLE SHEETS) ---
+
+    // 1. Wysyłanie nowego zamówienia (Lider)
+    async function submitOrder(e) {
+        e.preventDefault();
+        if(SCRIPT_URL === 'TUTAJ_WKLEJ_SWOJ_LINK') {
+            alert("Najpierw musisz podpiąć link z Google Apps Script!");
+            return;
+        }
+
+        const btn = e.target.querySelector('button');
+        btn.disabled = true;
+        btn.innerText = "Wysyłanie...";
+
+        const data = {
+            action: 'add',
+            dzial: document.getElementById('dzial').value,
+            nazwa: document.getElementById('nazwa').value,
+            link: document.getElementById('link').value,
+            ilosc: document.getElementById('ilosc').value
+        };
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+            });
+            alert('Zamówienie wysłane do akceptacji!');
+            e.target.reset(); // Czyści formularz
+        } catch (error) {
+            alert('Błąd wysyłania: ' + error);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Wyślij do akceptacji Kierownika";
+        }
+    }
+
+    // 2. Pobieranie listy zamówień
+    async function loadData() {
+        const tbody = document.getElementById('ordersTableBody');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Ładowanie danych...</td></tr>';
+        
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
+            renderTable(data);
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Błąd pobierania danych. Sprawdź link do skryptu.</td></tr>';
+        }
+    }
+
+    // 3. Generowanie tabeli i przycisków
+    function renderTable(data) {
+        const tbody = document.getElementById('ordersTableBody');
+        tbody.innerHTML = '';
+
+        if(data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Brak zamówień w bazie</td></tr>';
+            return;
+        }
+
+        // Odwracamy tablicę, żeby najnowsze były na górze
+        data.reverse().forEach(row => { 
+            let tr = document.createElement('tr');
+            let actionButtons = '-';
+            
+            // Logika uprawnień do klikania przycisków
+            if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
+                actionButtons = `
+                    <button class="btn btn-sm btn-success w-100 mb-1" onclick="updateStatus('${row.id}', 'Do realizacji')">Akceptuj</button>
+                    <button class="btn btn-sm btn-danger w-100" onclick="updateStatus('${row.id}', 'Odrzucone')">Odrzuć</button>
+                `;
+            } else if (currentRole === 'lukasz' && row.status === 'Do realizacji') {
+                actionButtons = `<button class="btn btn-sm btn-primary w-100" onclick="updateStatus('${row.id}', 'Zamówione')">Oznacz: Zamówione</button>`;
+            } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
+                actionButtons = `<button class="btn btn-sm btn-secondary w-100" onclick="updateStatus('${row.id}', 'Dostarczone')">Oznacz: Dostarczone</button>`;
+            }
+
+            // Kolorowanie statusów
+            let statusColor = "bg-secondary";
+            if(row.status === 'Do realizacji') statusColor = "bg-warning text-dark";
+            if(row.status === 'Zamówione') statusColor = "bg-primary";
+            if(row.status === 'Dostarczone') statusColor = "bg-success";
+            if(row.status === 'Odrzucone') statusColor = "bg-danger";
+
+            tr.innerHTML = `
+                <td><span class="badge bg-dark">${row.dzial}</span></td>
+                <td class="fw-bold">${row.nazwa}</td>
+                <td><a href="${row.link}" target="_blank" class="btn btn-sm btn-outline-info">Otwórz Link</a></td>
+                <td>${row.ilosc}</td>
+                <td><span class="badge ${statusColor}">${row.status}</span></td>
+                <td>${actionButtons}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 4. Aktualizacja statusu zamówienia w Excelu
+    async function updateStatus(id, newStatus) {
+        if(!confirm(`Czy na pewno chcesz zmienić status tego zamówienia na:\n"${newStatus}"?`)) return;
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'update', id: id, newStatus: newStatus }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            loadData(); // Odświeża od razu tabelę
+        } catch (error) {
+            alert('Błąd podczas aktualizacji: ' + error);
+        }
+    }
+</script>
 </body>
 </html>
