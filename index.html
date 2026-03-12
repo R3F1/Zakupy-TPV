@@ -3,42 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Zamówień - Dział Techniczny</title>
+    <title>System Zamówień TPV - Dział Techniczny</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
     <style>
         body { 
-            background-color: #f4f7f6; 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #e3efff; 
+            color: #1a202c;
+            font-family: 'Poppins', Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            margin-top: 60px; /* Dla sticky navbar */
         }
-        .navbar-custom {
-            background: linear-gradient(135deg, #0d6efd, #0a58ca);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        .navbar-glow {
+            background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
         }
         .view-section { display: none; }
         .active-view { display: block; }
         .table-responsive { max-height: 650px; overflow-y: auto; }
         
-        /* Stylizowanie kart i przycisków */
-        .card { border: none; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .card-header { border-radius: 12px 12px 0 0 !important; font-weight: 600; letter-spacing: 0.5px; }
-        .btn { border-radius: 8px; font-weight: 500; }
+        /* Stylizowanie kart z efektem glow */
+        .card { 
+            border: none; 
+            border-radius: 16px; 
+            background-color: #ffffff;
+            box-shadow: 0 5px 20px rgba(14, 165, 233, 0.1); 
+            transition: box-shadow 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(14, 165, 233, 0.2);
+        }
+        .card-header { 
+            border-radius: 16px 16px 0 0 !important; 
+            font-weight: 600; 
+            letter-spacing: 0.5px; 
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        .btn { border-radius: 10px; font-weight: 500; transition: all 0.2s; }
+        .btn:hover { transform: translateY(-1px); }
         
-        /* Stylizowanie tabeli */
-        .table thead th { background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; color: #495057; text-transform: uppercase; font-size: 0.85em; }
+        /* Stylizowanie tabeli z nowoczesnymi akcentami */
+        .table thead th { background-color: #f1f5f9; border-bottom: 2px solid #e2e8f0; color: #475569; text-transform: uppercase; font-size: 0.8em; }
+        .table-hover tbody tr:hover { background-color: #f0f9ff; }
         .powod-text { max-width: 200px; white-space: normal; font-size: 0.85em; color: #dc3545; font-style: italic; }
-        .badge { padding: 0.5em 0.7em; font-size: 0.8em; border-radius: 6px; }
+        .badge { padding: 0.5em 0.7em; font-size: 0.8em; border-radius: 8px; }
+        
+        /* Pasek wyszukiwania */
+        .search-container {
+            max-width: 400px;
+            margin-left: auto;
+        }
+        .input-group-search {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .search-input { border: none; padding: 10px 15px; border-radius: 0; }
+        .search-icon-btn { border: none; background: #ffffff; padding: 10px 15px; border-radius: 0; }
+        
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-custom mb-4 py-3">
+<nav class="navbar navbar-expand-lg navbar-glow fixed-top py-2">
     <div class="container-fluid px-4">
-        <span class="navbar-brand text-white fw-bold">
-            <i class="bi bi-cart-check-fill me-2"></i> System Zamówień TPV
+        <span class="navbar-brand text-white fw-bold fs-4">
+            <i class="bi bi-cart3 me-2"></i> SYSTEM ZAMÓWIEŃ TPV
         </span>
-        <div id="logoutBar" class="view-section text-white">
+        <div id="logoutBar" class="view-section text-white text-end">
             <span class="me-3 fw-bold" id="userGreeting" style="font-size: 0.95em;"></span>
             <button class="btn btn-sm btn-light text-danger fw-bold" onclick="logout()">
                 <i class="bi bi-box-arrow-right"></i> Wyloguj
@@ -50,34 +84,34 @@
 <div class="container-fluid px-4 pb-5">
 
     <div id="view-login" class="view-section active-view card mx-auto mt-5" style="max-width: 420px;">
-        <div class="card-header bg-dark text-white text-center py-3">
-            <i class="bi bi-person-badge fs-3 d-block mb-2"></i>
-            Logowanie do systemu
+        <div class="card-header bg-dark text-white text-center py-4">
+            <i class="bi bi-person-circle fs-2 d-block mb-2"></i>
+            Witaj w Systemie Zamówień
         </div>
         <div class="card-body p-4">
             <form id="loginForm">
                 <div class="mb-3">
                     <label class="form-label text-muted fw-bold small">NAZWA UŻYTKOWNIKA</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                        <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
                         <input type="text" id="loginInput" class="form-control" placeholder="Np. Lider LCM" required>
                     </div>
                 </div>
                 <div class="mb-4">
                     <label class="form-label text-muted fw-bold small">HASŁO</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
-                        <input type="password" id="passInput" class="form-control" placeholder="Wpisz hasło..." required>
+                        <span class="input-group-text bg-light text-muted"><i class="bi bi-lock"></i></span>
+                        <input type="password" id="passInput" class="form-control" placeholder="Twoje tajne hasło..." required>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 py-2 fs-5" id="loginBtn">
-                    Zaloguj się <i class="bi bi-arrow-right-circle ms-1"></i>
+                    Zaloguj się do Sklepu <i class="bi bi-arrow-right-circle ms-1"></i>
                 </button>
             </form>
         </div>
     </div>
 
-    <div id="view-lider" class="view-section card mx-auto mb-4" style="max-width: 600px;">
+    <div id="view-lider" class="view-section card mx-auto mb-4" style="max-width: 650px;">
         <div class="card-header bg-primary text-white py-3">
             <i class="bi bi-plus-circle me-1"></i> Panel Lidera - Nowe Zamówienie
         </div>
@@ -85,11 +119,11 @@
             <form id="orderForm" onsubmit="submitOrder(event)">
                 <div class="row">
                     <div class="col-md-8 mb-3">
-                        <label class="form-label fw-bold small text-muted">PRODUKT</label>
-                        <input type="text" id="produkt" class="form-control" placeholder="Nazwa zamawianej rzeczy" required>
+                        <label class="form-label fw-bold small text-muted">PRODUKT / NAZWA RZECZY</label>
+                        <input type="text" id="produkt" class="form-control" placeholder="Co zamawiasz?" required>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label fw-bold small text-muted">STREFA</label>
+                        <label class="form-label fw-bold small text-muted">STREFA / DZIAŁ</label>
                         <select id="strefa" class="form-select" required>
                             <option value="" disabled selected>Wybierz...</option>
                             <option value="OCR">OCR</option>
@@ -104,12 +138,12 @@
                         <input type="number" id="ilosc" class="form-control" min="1" value="1" required>
                     </div>
                     <div class="col-md-8 mb-3">
-                        <label class="form-label fw-bold small text-muted">LINK</label>
-                        <input type="url" id="link" class="form-control" placeholder="https://..." required>
+                        <label class="form-label fw-bold small text-muted">LINK DO PRODUKTU</label>
+                        <input type="url" id="link" class="form-control" placeholder="https://www.sklep.pl/..." required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success w-100 py-2 mt-2">
-                    <i class="bi bi-cart-plus me-1"></i> Dodaj do listy zamówień
+                <button type="submit" class="btn btn-success w-100 py-2 mt-2 fs-5">
+                    <i class="bi bi-cart-plus me-1"></i> Dodaj do listy zakupów
                 </button>
             </form>
         </div>
@@ -117,12 +151,20 @@
 
     <div id="view-table" class="view-section card shadow-sm">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
-            <span id="table-title" class="fs-5"><i class="bi bi-list-ul me-2"></i> Baza Zgłoszeń</span>
+            <span id="table-title" class="fs-5"><i class="bi bi-list-columns-reverse me-2"></i> Baza Zgłoszeń</span>
             <button class="btn btn-sm btn-outline-light" onclick="loadData()">
                 <i class="bi bi-arrow-clockwise"></i> Odśwież listę
             </button>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body p-3">
+            
+            <div class="search-container mb-3">
+                <div class="input-group input-group-search">
+                    <span class="input-group-text search-icon-btn text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control search-input" placeholder="Wyszukaj po nazwie, zonie, osobie... (dyn. filtr)">
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="sticky-top">
@@ -139,7 +181,7 @@
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
-                        <tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Ładowanie danych...</td></tr>
+                        <tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2 text-primary"></div>Ładowanie najnowszych danych...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -150,13 +192,14 @@
 
 <script>
     // ==========================================
-    // TWÓJ LINK Z GOOGLE APPS SCRIPT
+    // TWÓJ AKTUALNY LINK Z GOOGLE APPS SCRIPT
     // ==========================================
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmcUfWAvqPCiTzt55VSCZM_tVJJShRTAL28JT6nINYQSFBGVFEVSzLi3plClmmwE65jg/exec'; 
     
     let currentRole = 'none';
     let currentUser = '';
 
+    // NOWA BAZA UŻYTKOWNIKÓW
     const users = {
         'lider lcm': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCM' },
         'lider lcdr': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCDR' },
@@ -165,6 +208,7 @@
         'łukasz': { haslo: 'tpv12345!', rola: 'lukasz', nazwa: 'Łukasz' }
     };
 
+    // --- LOGIKA LOGOWANIA ---
     window.onload = () => {
         const savedRole = localStorage.getItem('userRole');
         const savedLogin = localStorage.getItem('userLogin');
@@ -196,17 +240,17 @@
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
         
         document.getElementById('logoutBar').classList.add('active-view');
-        document.getElementById('userGreeting').innerHTML = `<i class="bi bi-person-circle me-1"></i> Zalogowano: ${login}`;
+        document.getElementById('userGreeting').innerHTML = `<i class="bi bi-person-check-fill me-1"></i> Zalogowano: ${login}`;
 
         document.getElementById('view-table').classList.add('active-view');
 
         if (currentRole === 'lider') {
             document.getElementById('view-lider').classList.add('active-view');
-            document.getElementById('table-title').innerHTML = '<i class="bi bi-list-ul me-2"></i> Lista Twoich i pozostałych zamówień';
+            document.getElementById('table-title').innerHTML = '<i class="bi bi-cart3 me-2"></i> Lista wszystkich Twoich zamówień';
         } else if (currentRole === 'kierownik') {
             document.getElementById('table-title').innerHTML = '<i class="bi bi-ui-checks me-2"></i> Panel Akceptacji - Kierownik';
         } else if (currentRole === 'lukasz') {
-            document.getElementById('table-title').innerHTML = '<i class="bi bi-truck me-2"></i> Panel Realizacji - Łukasz';
+            document.getElementById('table-title').innerHTML = '<i class="bi bi-cart-dash me-2"></i> Panel Realizacji - Łukasz';
         }
         
         loadData();
@@ -221,12 +265,11 @@
     // --- FUNKCJA NAPRAWIAJĄCA BRZYDKĄ DATĘ ---
     function formatDate(dateStr) {
         if (!dateStr) return '';
-        // Jeśli to już jest nasza tekstowa data z kropkami, zostaw ją
         if (typeof dateStr === 'string' && dateStr.includes('.')) return dateStr;
         
         try {
             const d = new Date(dateStr);
-            if (isNaN(d.getTime())) return dateStr; // Jeśli błąd, zwróć oryginał
+            if (isNaN(d.getTime())) return dateStr; 
             return d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + 
                    d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute:'2-digit' });
         } catch (e) {
@@ -234,14 +277,14 @@
         }
     }
 
-    // --- WYSYŁANIE ZAMÓWIENIA ---
+    // --- DODAWANIE NOWEGO ZAMÓWIENIA ---
     async function submitOrder(e) {
         e.preventDefault();
         
         const btn = e.target.querySelector('button');
         const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wysyłanie...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wysyłanie do bazy...';
 
         const data = {
             action: 'add',
@@ -261,29 +304,29 @@
             e.target.reset();
             loadData(); 
         } catch (error) {
-            alert('Błąd: ' + error);
+            alert('Błąd dodawania: ' + error);
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalText;
         }
     }
 
-    // --- POBIERANIE DANYCH ---
+    // --- POBIERANIE DANYCH Z GOOGLE ---
     async function loadData() {
         const tbody = document.getElementById('ordersTableBody');
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Pobieranie najnowszych danych...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2 text-primary"></div>Odświeżanie listy zamówień...</td></tr>';
         
         try {
             const response = await fetch(SCRIPT_URL);
             const data = await response.json();
             renderTable(data);
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-danger text-center py-4"><i class="bi bi-exclamation-triangle-fill me-2"></i>Błąd pobierania danych.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-danger text-center py-4"><i class="bi bi-exclamation-triangle-fill me-2"></i>Błąd pobierania danych. Zaktualizowałeś Apps Script?</td></tr>';
             console.error(error);
         }
     }
 
-    // --- GENEROWANIE TABELI ---
+    // --- GENEROWANIE TABELI I PRZYCISKÓW ---
     function renderTable(data) {
         const tbody = document.getElementById('ordersTableBody');
         tbody.innerHTML = '';
@@ -293,14 +336,16 @@
             return;
         }
 
+        // Odwracamy żeby nowe zamówienia były u góry
         data.reverse().forEach(row => { 
             let tr = document.createElement('tr');
             let actionButtons = '-';
             
+            // Przyciski Akcji na podstawie Roli i Statusu
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
                 actionButtons = `
-                    <button class="btn btn-sm btn-success w-100 mb-1" onclick="updateStatus(${row.id}, 'Zaakceptowane')"><i class="bi bi-check-circle"></i> Akceptuj</button>
-                    <button class="btn btn-sm btn-danger w-100" onclick="rejectOrder(${row.id})"><i class="bi bi-x-circle"></i> Odrzuć</button>
+                    <button class="btn btn-sm btn-success w-100 mb-1" onclick="updateStatus(${row.id}, 'Zaakceptowane')"><i class="bi bi-check-lg"></i> Akceptuj</button>
+                    <button class="btn btn-sm btn-danger w-100" onclick="rejectOrder(${row.id})"><i class="bi bi-x-lg"></i> Odrzuć</button>
                 `;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
                 actionButtons = `<button class="btn btn-sm btn-primary w-100" onclick="updateStatus(${row.id}, 'Zamówione')"><i class="bi bi-cart-check"></i> Oznacz Kupione</button>`;
@@ -308,6 +353,7 @@
                 actionButtons = `<button class="btn btn-sm btn-info w-100 text-white" onclick="updateStatus(${row.id}, 'Dostarczone')"><i class="bi bi-box-seam"></i> Dostarczono</button>`;
             }
 
+            // Kolorowanie Statusu
             let statusColor = "bg-secondary";
             let statusIcon = "bi-hourglass-split";
             if(row.status === 'Zaakceptowane') { statusColor = "bg-warning text-dark"; statusIcon = "bi-check2-circle"; }
@@ -315,7 +361,7 @@
             if(row.status === 'Dostarczone') { statusColor = "bg-success"; statusIcon = "bi-box-seam"; }
             if(row.status === 'Odrzucone') { statusColor = "bg-danger"; statusIcon = "bi-x-octagon"; }
 
-            // FORMATOWANIE DATY PRZED WYŚWIETLENIEM
+            // Lepsza data
             const ladnaData = formatDate(row.dataZam);
 
             tr.innerHTML = `
@@ -324,16 +370,16 @@
                 <td class="text-center fw-bold fs-6">${row.ilosc}</td>
                 <td class="small text-muted"><i class="bi bi-calendar3 me-1"></i>${ladnaData}</td>
                 <td><i class="bi bi-person me-1"></i>${row.kto}</td>
-                <td><a href="${row.link}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-link-45deg"></i> Link</a></td>
+                <td><a href="${row.link}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-link-45deg"></i> Sklep</a></td>
                 <td><span class="badge ${statusColor}"><i class="bi ${statusIcon} me-1"></i>${row.status}</span></td>
                 <td><div class="powod-text">${row.powod}</div></td>
-                <td class="pe-3" style="min-width: 130px;">${actionButtons}</td>
+                <td class="pe-3" style="min-width: 140px;">${actionButtons}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // --- SPECJALNA FUNKCJA DO ODRZUCANIA ---
+    // --- OBSŁUGA ODRZUCANIA Z POWODEM ---
     function rejectOrder(idWiersza) {
         const powod = prompt("Podaj powód odrzucenia (To pole jest wymagane!):");
         
@@ -346,12 +392,12 @@
         updateStatus(idWiersza, 'Odrzucone', powod);
     }
 
-    // --- ZMIANA STATUSU ---
+    // --- ZMIANA STATUSU I POWODU (Z NAPRAWĄ BLADOŚCI) ---
     async function updateStatus(idWiersza, newStatus, reason = '') {
         if(newStatus !== 'Odrzucone' && !confirm(`Czy na pewno chcesz zmienić status na: "${newStatus}"?`)) return;
 
         try {
-            // Dodajemy na chwilę klasę wyszarzającą tabelę, żeby było widać, że coś się dzieje
+            // Tabela robi się blada na czas wysyłania (efekt ładowania)
             document.getElementById('ordersTableBody').style.opacity = '0.5';
             
             await fetch(SCRIPT_URL, {
@@ -359,12 +405,38 @@
                 body: JSON.stringify({ action: 'update', id: idWiersza, newStatus: newStatus, reason: reason }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
-            loadData(); 
+            
+            // NAPRAWA: Wyłączamy bladość po udanym zapisie!
+            document.getElementById('ordersTableBody').style.opacity = '1';
+            
+            loadData(); // Odśwież widok
         } catch (error) {
-            alert('Błąd aktualizacji: ' + error);
+            alert('Błąd aktualizacji statusu: ' + error);
+            // Wyłączamy bladość również w przypadku błędu
             document.getElementById('ordersTableBody').style.opacity = '1';
         }
     }
+    
+    // --- DYNAMICZNE FILTROWANIE TABELI (WYSZUKIWANA) ---
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const value = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#ordersTableBody tr');
+        
+        rows.forEach(row => {
+            const produkt = row.querySelector('td:nth-child(1)').innerText.toLowerCase();
+            const strefa = row.querySelector('td:nth-child(2)').innerText.toLowerCase();
+            const data = row.querySelector('td:nth-child(4)').innerText.toLowerCase();
+            const kto = row.querySelector('td:nth-child(5)').innerText.toLowerCase();
+            const status = row.querySelector('td:nth-child(7)').innerText.toLowerCase();
+            
+            // Sprawdzamy czy wartość wyszukiwania jest w którymkolwiek z kluczowych pól
+            if (produkt.includes(value) || strefa.includes(value) || data.includes(value) || kto.includes(value) || status.includes(value)) {
+                row.style.display = ""; // Pokaż wiersz
+            } else {
+                row.style.display = "none"; // Ukryj wiersz
+            }
+        });
+    });
 </script>
 </body>
 </html>
