@@ -10,11 +10,13 @@
         .view-section { display: none; }
         .active-view { display: block; }
         .table-responsive { max-height: 600px; overflow-y: auto; }
+        /* Drobny styl, żeby długie powody zawijały się w tabeli */
+        .powod-text { max-width: 200px; white-space: normal; font-size: 0.85em; }
     </style>
 </head>
 <body class="bg-light">
 
-<div class="container-fluid mt-4 px-4">
+<div class="container-fluid mt-4 px-4 pb-5">
     <h2 class="mb-4 text-center">System Zamówień - Dział Techniczny</h2>
 
     <div id="logoutBar" class="text-end mb-3 view-section">
@@ -39,7 +41,7 @@
         </div>
     </div>
 
-    <div id="view-lider" class="view-section card shadow-sm mx-auto" style="max-width: 600px;">
+    <div id="view-lider" class="view-section card shadow-sm mx-auto mb-4" style="max-width: 600px;">
         <div class="card-header bg-primary text-white">Panel Lidera - Nowe Zamówienie</div>
         <div class="card-body">
             <form id="orderForm" onsubmit="submitOrder(event)">
@@ -69,9 +71,9 @@
         </div>
     </div>
 
-    <div id="view-table" class="view-section card mt-4 shadow-sm">
+    <div id="view-table" class="view-section card shadow-sm">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <span id="table-title">Lista Zamówień</span>
+            <span id="table-title">Baza Zgłoszeń</span>
             <button class="btn btn-sm btn-outline-light" onclick="loadData()">Odśwież listę</button>
         </div>
         <div class="card-body p-0">
@@ -85,12 +87,13 @@
                             <th>Data</th>
                             <th>Kto</th>
                             <th>Link</th>
-                            <th>Info Łukasz</th>
+                            <th>Status</th>
+                            <th>Uwagi / Powód</th>
                             <th>Akcja</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
-                        <tr><td colspan="8" class="text-center text-muted py-3">Ładowanie danych...</td></tr>
+                        <tr><td colspan="9" class="text-center text-muted py-3">Ładowanie danych...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -108,7 +111,6 @@
     let currentRole = 'none';
     let currentUser = '';
 
-    // NOWA BAZA UŻYTKOWNIKÓW (klucze z małej litery dla łatwego logowania)
     const users = {
         'lider lcm': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCM' },
         'lider lcdr': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCDR' },
@@ -127,12 +129,9 @@
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // Zmieniamy wpisany login na małe litery przed sprawdzeniem
         const inputLogin = document.getElementById('loginInput').value.trim().toLowerCase();
         const pass = document.getElementById('passInput').value;
 
-        // Sprawdzamy czy istnieje taki użytkownik pisany z małych liter
         if (users[inputLogin] && users[inputLogin].haslo === pass) {
             const rola = users[inputLogin].rola;
             const ladnaNazwa = users[inputLogin].nazwa;
@@ -151,16 +150,22 @@
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
         
         document.getElementById('logoutBar').classList.add('active-view');
-        // Wyświetlamy np. "Zalogowano: Lider LCM"
         document.getElementById('userGreeting').innerText = `Zalogowano: ${login}`;
 
+        // UWAGA: Tabela (view-table) jest teraz aktywna dla KAŻDEGO
+        document.getElementById('view-table').classList.add('active-view');
+
+        // Formularz (view-lider) aktywny tylko dla liderów
         if (currentRole === 'lider') {
             document.getElementById('view-lider').classList.add('active-view');
-        } else if (currentRole === 'kierownik' || currentRole === 'lukasz') {
-            document.getElementById('view-table').classList.add('active-view');
-            document.getElementById('table-title').innerText = currentRole === 'kierownik' ? 'Panel Akceptacji - Kierownik' : 'Panel Realizacji - Łukasz';
-            loadData();
+            document.getElementById('table-title').innerText = 'Lista wszystkich zamówień';
+        } else if (currentRole === 'kierownik') {
+            document.getElementById('table-title').innerText = 'Panel Akceptacji - Kierownik';
+        } else if (currentRole === 'lukasz') {
+            document.getElementById('table-title').innerText = 'Panel Realizacji - Łukasz';
         }
+        
+        loadData();
     }
 
     function logout() {
@@ -183,7 +188,7 @@
             strefa: document.getElementById('strefa').value,
             ilosc: document.getElementById('ilosc').value,
             link: document.getElementById('link').value,
-            kto: currentUser // Skrypt bierze z logowania np. "Lider LCDR"
+            kto: currentUser 
         };
 
         try {
@@ -194,6 +199,7 @@
             });
             alert('Dodano zamówienie!');
             e.target.reset();
+            loadData(); // Odśwież tabelę automatycznie po dodaniu
         } catch (error) {
             alert('Błąd: ' + error);
         } finally {
@@ -205,14 +211,14 @@
     // --- POBIERANIE DANYCH ---
     async function loadData() {
         const tbody = document.getElementById('ordersTableBody');
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-3">Ładowanie z serwera...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center py-3">Ładowanie z serwera...</td></tr>';
         
         try {
             const response = await fetch(SCRIPT_URL);
             const data = await response.json();
             renderTable(data);
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-danger text-center py-3">Błąd pobierania danych z Google Sheets.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-danger text-center py-3">Błąd pobierania danych. Zaktualizowałeś Apps Script?</td></tr>';
             console.error(error);
         }
     }
@@ -223,20 +229,18 @@
         tbody.innerHTML = '';
 
         if(data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">Brak zamówień w bazie</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-3">Brak zamówień w bazie</td></tr>';
             return;
         }
 
-        // Odwracamy żeby nowe zamówienia były u góry
         data.reverse().forEach(row => { 
             let tr = document.createElement('tr');
             let actionButtons = '-';
             
-            // Przyciski na podstawie Roli i Statusu "INFO ŁUKASZ"
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
                 actionButtons = `
                     <button class="btn btn-sm btn-success w-100 mb-1" onclick="updateStatus(${row.id}, 'Zaakceptowane')">Akceptuj</button>
-                    <button class="btn btn-sm btn-danger w-100" onclick="updateStatus(${row.id}, 'Odrzucone')">Odrzuć</button>
+                    <button class="btn btn-sm btn-danger w-100" onclick="rejectOrder(${row.id})">Odrzuć</button>
                 `;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
                 actionButtons = `<button class="btn btn-sm btn-primary w-100" onclick="updateStatus(${row.id}, 'Zamówione')">Kupione</button>`;
@@ -244,7 +248,6 @@
                 actionButtons = `<button class="btn btn-sm btn-info w-100" onclick="updateStatus(${row.id}, 'Dostarczone')">Dostarczono</button>`;
             }
 
-            // Kolory plakietek statusu
             let statusColor = "bg-secondary";
             if(row.status === 'Zaakceptowane') statusColor = "bg-warning text-dark";
             if(row.status === 'Zamówione') statusColor = "bg-primary";
@@ -259,23 +262,42 @@
                 <td>${row.kto}</td>
                 <td><a href="${row.link}" target="_blank" class="btn btn-sm btn-outline-secondary">Link</a></td>
                 <td><span class="badge ${statusColor}">${row.status}</span></td>
+                <td><div class="powod-text text-danger fw-bold">${row.powod}</div></td>
                 <td style="min-width: 110px;">${actionButtons}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // --- ZMIANA STATUSU ---
-    async function updateStatus(idWiersza, newStatus) {
-        if(!confirm(`Zmienić status na:\n"${newStatus}"?`)) return;
+    // --- SPECJALNA FUNKCJA DO ODRZUCANIA (wymusza powód) ---
+    function rejectOrder(idWiersza) {
+        const powod = prompt("Podaj powód odrzucenia (To pole jest wymagane!):");
+        
+        if (powod === null) {
+            // Anulowano okienko (Esc)
+            return; 
+        } else if (powod.trim() === "") {
+            // Zostawiono puste
+            alert("Nie możesz odrzucić zamówienia bez podania powodu!");
+            return;
+        }
+
+        // Jeśli jest powód, wysyłamy status Odrzucone z powodem
+        updateStatus(idWiersza, 'Odrzucone', powod);
+    }
+
+    // --- ZMIANA STATUSU (ze wsparciem dla wysyłania powodu) ---
+    async function updateStatus(idWiersza, newStatus, reason = '') {
+        // Pytamy o potwierdzenie tylko jeśli to nie jest odrzucenie (bo tam już było okienko)
+        if(newStatus !== 'Odrzucone' && !confirm(`Zmienić status na:\n"${newStatus}"?`)) return;
 
         try {
             await fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'update', id: idWiersza, newStatus: newStatus }),
+                body: JSON.stringify({ action: 'update', id: idWiersza, newStatus: newStatus, reason: reason }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
-            loadData(); // Odśwież widok
+            loadData(); 
         } catch (error) {
             alert('Błąd: ' + error);
         }
