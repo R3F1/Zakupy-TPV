@@ -110,11 +110,13 @@
         .badge-soft-secondary { background-color: rgba(148, 163, 184, 0.15); color: #64748b; } 
         .badge-soft-warning { background-color: rgba(245, 158, 11, 0.15); color: #d97706; } 
         .badge-soft-primary { background-color: rgba(59, 130, 246, 0.15); color: #2563eb; } 
-        .badge-soft-success { background-color: rgba(34, 197, 94, 0.15); color: #16a34a; } 
+        .badge-soft-info { background-color: rgba(6, 182, 212, 0.15); color: #0891b2; } /* Do odbioru */
+        .badge-soft-success { background-color: rgba(34, 197, 94, 0.15); color: #16a34a; } /* Odebrane */
         .badge-soft-danger { background-color: rgba(239, 68, 68, 0.15); color: #dc2626; } 
         
         body.dark-mode .badge-soft-secondary { color: #94a3b8; }
         body.dark-mode .badge-soft-primary { color: #60a5fa; }
+        body.dark-mode .badge-soft-info { color: #22d3ee; }
         body.dark-mode .badge-soft-success { color: #4ade80; }
         body.dark-mode .badge-soft-warning { color: #fbbf24; }
 
@@ -148,7 +150,7 @@
         .archive-hidden { display: none !important; }
         .filters-wrapper { background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border-color); transition: all 0.4s;}
         
-        /* --- PŁYWAJĄCY PASEK AKCJI GRUPOWYCH (BULK ACTIONS) --- */
+        /* --- PŁYWAJĄCY PASEK AKCJI GRUPOWYCH --- */
         .bulk-bar {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150px);
             background: var(--card-bg); border: 1px solid var(--border-color); padding: 12px 25px;
@@ -297,7 +299,7 @@
             <div class="d-flex align-items-center gap-3">
                 <div class="form-check form-switch text-white mb-0 me-2">
                     <input class="form-check-input" type="checkbox" id="archiveSwitch" onchange="toggleArchive()">
-                    <label class="form-check-label small fw-bold" for="archiveSwitch">Pokaż Archiwum</label>
+                    <label class="form-check-label small fw-bold" for="archiveSwitch">Archiwum (Odebrane)</label>
                 </div>
                 <button class="btn btn-sm btn-light text-dark fw-bold rounded-pill px-3 shadow-sm" onclick="loadData()">
                     <i class="bi bi-arrow-clockwise text-primary"></i> Odśwież
@@ -311,13 +313,13 @@
                 <div class="col-md-3"><div class="stat-card"><div class="stat-icon bg-secondary bg-opacity-10 text-secondary"><i class="bi bi-hourglass-split"></i></div><div><div class="stat-value" id="stat-oczekujace">0</div><div class="stat-label">Do akceptacji</div></div></div></div>
                 <div class="col-md-3"><div class="stat-card"><div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-cart-check"></i></div><div><div class="stat-value" id="stat-zaakceptowane">0</div><div class="stat-label">Do Kupienia</div></div></div></div>
                 <div class="col-md-3"><div class="stat-card"><div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-truck"></i></div><div><div class="stat-value" id="stat-zamowione">0</div><div class="stat-label">W Drodze</div></div></div></div>
-                <div class="col-md-3"><div class="stat-card"><div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-box-seam"></i></div><div><div class="stat-value" id="stat-dostarczone">0</div><div class="stat-label">Zakończone</div></div></div></div>
+                <div class="col-md-3"><div class="stat-card"><div class="stat-icon bg-info bg-opacity-10 text-info"><i class="bi bi-box-seam"></i></div><div><div class="stat-value" id="stat-do-odbioru">0</div><div class="stat-label">Czeka na Odbiór</div></div></div></div>
             </div>
 
             <div class="progress mb-4 shadow-sm" style="height: 6px; border-radius: 10px; background-color: var(--input-bg);">
                 <div id="pb-oczek" class="progress-bar bg-secondary" style="width: 0%" title="Oczekujące"></div>
-                <div id="pb-w-trakcie" class="progress-bar bg-primary" style="width: 0%" title="Zaakceptowane i Zamówione"></div>
-                <div id="pb-dost" class="progress-bar bg-success" style="width: 0%" title="Dostarczone"></div>
+                <div id="pb-w-trakcie" class="progress-bar bg-primary" style="width: 0%" title="W toku"></div>
+                <div id="pb-dost" class="progress-bar bg-info" style="width: 0%" title="Do odbioru"></div>
             </div>
 
             <div class="filters-wrapper d-flex flex-wrap justify-content-between align-items-center gap-3 shadow-sm border-0">
@@ -327,6 +329,7 @@
                     <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-0 bg-secondary bg-opacity-10" onclick="filterByStatus('oczekujące', this)">Oczekujące</button>
                     <button class="btn btn-outline-warning btn-sm rounded-pill px-3 border-0 bg-warning bg-opacity-10" onclick="filterByStatus('zaakceptowane', this)">Zaakceptowane</button>
                     <button class="btn btn-outline-primary btn-sm rounded-pill px-3 border-0 bg-primary bg-opacity-10" onclick="filterByStatus('zamówione', this)">Zamówione</button>
+                    <button class="btn btn-outline-info btn-sm rounded-pill px-3 border-0 bg-info bg-opacity-10" onclick="filterByStatus('do odbioru', this)">Do odbioru</button>
                 </div>
                 <div class="input-group search-container shadow-sm" style="max-width: 280px;">
                     <span class="input-group-text border-0"><i class="bi bi-search"></i></span>
@@ -351,7 +354,7 @@
                             <th class="text-center">Sklep</th>
                             <th class="text-center sortable" onclick="sortData('status')" style="min-width: 140px;">Status <i class="bi bi-chevron-expand text-secondary"></i></th>
                             <th style="min-width: 140px;">Uwagi</th>
-                            <th class="text-center" style="min-width: 130px;">Akcja</th>
+                            <th class="text-center" style="min-width: 140px;">Akcja</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
@@ -430,7 +433,6 @@
         document.getElementById('view-table').classList.add('active-view');
         if (currentRole === 'lider') document.getElementById('view-lider').classList.add('active-view');
 
-        // USTAWIENIE DOMYŚLNEGO FILTRU W ZALEŻNOŚCI OD ROLI
         const buttons = document.querySelectorAll('#statusFilters button');
         buttons.forEach(b => {
             b.classList.remove('btn-dark', 'text-white', 'shadow-sm', 'active');
@@ -483,11 +485,10 @@
         } catch (e) { return dateStr; }
     }
 
-    // GŁÓWNA FUNKCJA DO ODŚWIEŻANIA WIDOKU (Z ZACHOWANIEM FILTRÓW)
     function refreshTableView(applyReverse = false) {
         renderTable(globalData, applyReverse);
         const activeBtn = document.querySelector('#statusFilters button.active');
-        if(activeBtn) activeBtn.click(); // Re-aplikuje aktualnie podświetlony filtr!
+        if(activeBtn) activeBtn.click(); 
     }
 
     function toggleArchive() { 
@@ -563,14 +564,14 @@
             globalData = await response.json();
             
             document.getElementById('searchInput').value = "";
-            refreshTableView(true); // Buduje tabelę i samoczynnie aplikuje ZAPAMIĘTANY filtr!
+            refreshTableView(true); 
             
         } catch (error) {
             tbody.innerHTML = '<tr><td colspan="12" class="text-danger text-center py-5 fw-bold">Błąd połączenia z bazą Google.</td></tr>';
         }
     }
 
-    // --- LOGIKA AKCJI GRUPOWYCH (BULK) ---
+    // --- BULK ACTIONS ---
     function toggleAllCheckboxes(masterCheckbox) {
         const checkboxes = document.querySelectorAll('.row-checkbox');
         checkboxes.forEach(cb => {
@@ -596,9 +597,10 @@
                     <button class="btn btn-success rounded-pill shadow-sm" onclick="executeBulk('Zaakceptowane')"><i class="bi bi-check-all"></i> Akceptuj Wybrane</button>
                     <button class="btn btn-outline-danger rounded-pill shadow-sm bg-white" onclick="executeBulk('Odrzucone')">Odrzuć Wybrane</button>`;
             } else if (currentRole === 'lukasz') {
+                // ŁUKASZ MOŻE ZMIENIAĆ NA ZAMÓWIONE LUB DO ODBIORU
                 buttonsHtml = `
                     <button class="btn btn-primary rounded-pill shadow-sm" onclick="executeBulk('Zamówione')"><i class="bi bi-cart-check"></i> Oznacz Kupione</button>
-                    <button class="btn btn-info text-white rounded-pill shadow-sm" onclick="executeBulk('Dostarczone')"><i class="bi bi-box-seam"></i> Odbiór Paczek</button>`;
+                    <button class="btn btn-info text-white rounded-pill shadow-sm" onclick="executeBulk('Do odbioru')"><i class="bi bi-box-seam"></i> Dotarły (Do odbioru)</button>`;
             } else if (currentRole === 'lider') {
                 buttonsHtml = `<button class="btn btn-danger rounded-pill shadow-sm" onclick="executeBulk('delete')"><i class="bi bi-trash"></i> Usuń Wybrane</button>`;
             }
@@ -658,7 +660,7 @@
         const tbody = document.getElementById('ordersTableBody');
         tbody.innerHTML = '';
         
-        let statOczek = 0, statZaakc = 0, statZamow = 0, statDost = 0;
+        let statOczek = 0, statZaakc = 0, statZamow = 0, statDoOdbioru = 0;
         let displayData = applyReverse ? [...dataArray].reverse() : dataArray;
         let visibleCount = 0;
 
@@ -666,9 +668,10 @@
             if (row.status === 'Oczekujące') statOczek++;
             if (row.status === 'Zaakceptowane') statZaakc++;
             if (row.status === 'Zamówione') statZamow++;
-            if (row.status === 'Dostarczone') statDost++;
+            if (row.status === 'Do odbioru') statDoOdbioru++;
 
-            if (!showArchive && row.status === 'Dostarczone') return;
+            // ODEBRANE ZAMIAST DOSTARCZONE JEST TERAZ ARCHIWIZOWANE
+            if (!showArchive && row.status === 'Odebrane') return;
             visibleCount++;
 
             let tr = document.createElement('tr');
@@ -698,13 +701,18 @@
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
                 actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zamówione', '', this)">Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Odbiór paczki</button>`;
+                // ŁUKASZ OZNACZA JAKO DO ODBIORU
+                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Do odbioru', '', this)" style="box-shadow: 0 4px 10px rgba(6, 182, 212, 0.4);"><i class="bi bi-box-seam"></i> Dotarło (Do odbioru)</button>`;
+            } else if (currentRole === 'lider' && row.status === 'Do odbioru' && czyToWlasciciel) {
+                // LIDER ODBIERA I KOŃCZY PROCES
+                actionButtons = `<button class="btn btn-sm btn-success w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Odebrane', '', this)"><i class="bi bi-check2-circle"></i> Potwierdź Odbiór</button>`;
             }
 
             let sClass = "badge-soft-secondary";
             if(row.status === 'Zaakceptowane') sClass = "badge-soft-warning";
             if(row.status === 'Zamówione') sClass = "badge-soft-primary";
-            if(row.status === 'Dostarczone') sClass = "badge-soft-success";
+            if(row.status === 'Do odbioru') sClass = "badge-soft-info";
+            if(row.status === 'Odebrane') sClass = "badge-soft-success";
             if(row.status === 'Odrzucone') sClass = "badge-soft-danger";
 
             const pBadge = row.priorytet === 'PILNE' ? '<span class="badge-urgent">PILNE</span>' : '';
@@ -740,12 +748,12 @@
         document.getElementById('stat-oczekujace').innerText = statOczek;
         document.getElementById('stat-zaakceptowane').innerText = statZaakc;
         document.getElementById('stat-zamowione').innerText = statZamow;
-        document.getElementById('stat-dostarczone').innerText = statDost;
+        document.getElementById('stat-do-odbioru').innerText = statDoOdbioru;
 
-        let totalActive = statOczek + statZaakc + statZamow + statDost;
+        let totalActive = statOczek + statZaakc + statZamow + statDoOdbioru;
         document.getElementById('pb-oczek').style.width = (totalActive ? (statOczek / totalActive * 100) : 0) + '%';
         document.getElementById('pb-w-trakcie').style.width = (totalActive ? ((statZaakc + statZamow) / totalActive * 100) : 0) + '%';
-        document.getElementById('pb-dost').style.width = (totalActive ? (statDost / totalActive * 100) : 0) + '%';
+        document.getElementById('pb-dost').style.width = (totalActive ? (statDoOdbioru / totalActive * 100) : 0) + '%';
     }
 
     function filterByStatus(statusName, btnElement) {
@@ -832,7 +840,8 @@
                 let sClass = "badge-soft-secondary";
                 if(stat === 'Zaakceptowane') sClass = "badge-soft-warning";
                 if(stat === 'Zamówione') sClass = "badge-soft-primary";
-                if(stat === 'Dostarczone') sClass = "badge-soft-success";
+                if(stat === 'Do odbioru') sClass = "badge-soft-info";
+                if(stat === 'Odebrane') sClass = "badge-soft-success";
                 if(stat === 'Odrzucone') sClass = "badge-soft-danger";
 
                 row.querySelector('.status-col').innerHTML = `<span class="badge ${sClass}">${stat}</span>`;
@@ -846,7 +855,7 @@
                 if(rowData) { rowData.status = stat; rowData.powod = reason; }
 
                 showToast(`Zmieniono status na: ${stat}`);
-                if (stat === 'Dostarczone' && !showArchive) setTimeout(() => row.style.display = 'none', 500);
+                if (stat === 'Odebrane' && !showArchive) setTimeout(() => row.style.display = 'none', 500);
                 setTimeout(() => refreshTableView(false), 600); 
             }
         } catch (error) { showToast('Błąd sieci', 'danger'); row.style.opacity = '1'; row.style.pointerEvents = 'auto'; }
