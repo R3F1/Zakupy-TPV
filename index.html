@@ -12,7 +12,7 @@
             background-color: #e3efff; 
             color: #1a202c;
             font-family: 'Poppins', Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-            margin-top: 60px; /* Dla sticky navbar */
+            margin-top: 70px; 
         }
         .navbar-glow {
             background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
@@ -20,9 +20,8 @@
         }
         .view-section { display: none; }
         .active-view { display: block; }
-        .table-responsive { max-height: 650px; overflow-y: auto; }
         
-        /* Stylizowanie kart z efektem glow */
+        /* Karty */
         .card { 
             border: none; 
             border-radius: 16px; 
@@ -30,9 +29,7 @@
             box-shadow: 0 5px 20px rgba(14, 165, 233, 0.1); 
             transition: box-shadow 0.3s ease;
         }
-        .card:hover {
-            box-shadow: 0 8px 30px rgba(14, 165, 233, 0.2);
-        }
+        .card:hover { box-shadow: 0 8px 30px rgba(14, 165, 233, 0.2); }
         .card-header { 
             border-radius: 16px 16px 0 0 !important; 
             font-weight: 600; 
@@ -40,28 +37,34 @@
             text-transform: uppercase;
             font-size: 0.9em;
         }
-        .btn { border-radius: 10px; font-weight: 500; transition: all 0.2s; }
+        .btn { border-radius: 8px; font-weight: 500; transition: all 0.2s; }
         .btn:hover { transform: translateY(-1px); }
         
-        /* Stylizowanie tabeli z nowoczesnymi akcentami */
-        .table thead th { background-color: #f1f5f9; border-bottom: 2px solid #e2e8f0; color: #475569; text-transform: uppercase; font-size: 0.8em; }
+        /* Tabela zoptymalizowana */
+        .table-responsive { max-height: 65vh; overflow-y: auto; border-radius: 8px; }
+        .table { margin-bottom: 0; }
+        .table thead th { 
+            background-color: #f8fafc; 
+            border-bottom: 2px solid #e2e8f0; 
+            color: #475569; 
+            text-transform: uppercase; 
+            font-size: 0.75em; 
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+        }
+        .table tbody td { vertical-align: middle; font-size: 0.9em; }
         .table-hover tbody tr:hover { background-color: #f0f9ff; }
-        .powod-text { max-width: 200px; white-space: normal; font-size: 0.85em; color: #dc3545; font-style: italic; }
-        .badge { padding: 0.5em 0.7em; font-size: 0.8em; border-radius: 8px; }
         
-        /* Pasek wyszukiwania */
-        .search-container {
-            max-width: 400px;
-            margin-left: auto;
-        }
-        .input-group-search {
-            background-color: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-        .search-input { border: none; padding: 10px 15px; border-radius: 0; }
-        .search-icon-btn { border: none; background: #ffffff; padding: 10px 15px; border-radius: 0; }
+        /* Elementy tabeli */
+        .powod-text { max-width: 180px; font-size: 0.85em; color: #dc3545; font-style: italic; line-height: 1.2; }
+        .badge { padding: 0.6em 0.8em; font-size: 0.75em; border-radius: 6px; font-weight: 600; letter-spacing: 0.3px; }
+        
+        /* Filtry i wyszukiwarka */
+        .filters-wrapper { background-color: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .input-group-search { border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .search-input { border: 1px solid #e2e8f0; border-left: none; padding: 10px 15px; }
+        .search-icon-btn { border: 1px solid #e2e8f0; border-right: none; background: #ffffff; }
+        .search-input:focus { box-shadow: none; border-color: #e2e8f0; }
         
     </style>
 </head>
@@ -69,12 +72,12 @@
 
 <nav class="navbar navbar-expand-lg navbar-glow fixed-top py-2">
     <div class="container-fluid px-4">
-        <span class="navbar-brand text-white fw-bold fs-4">
+        <span class="navbar-brand text-white fw-bold fs-5">
             <i class="bi bi-cart3 me-2"></i> SYSTEM ZAMÓWIEŃ TPV
         </span>
         <div id="logoutBar" class="view-section text-white text-end">
-            <span class="me-3 fw-bold" id="userGreeting" style="font-size: 0.95em;"></span>
-            <button class="btn btn-sm btn-light text-danger fw-bold" onclick="logout()">
+            <span class="me-3 fw-bold small" id="userGreeting"></span>
+            <button class="btn btn-sm btn-light text-danger fw-bold shadow-sm" onclick="logout()">
                 <i class="bi bi-box-arrow-right"></i> Wyloguj
             </button>
         </div>
@@ -83,105 +86,119 @@
 
 <div class="container-fluid px-4 pb-5">
 
-    <div id="view-login" class="view-section active-view card mx-auto mt-5" style="max-width: 420px;">
+    <div id="view-login" class="view-section active-view card mx-auto mt-5" style="max-width: 400px;">
         <div class="card-header bg-dark text-white text-center py-4">
-            <i class="bi bi-person-circle fs-2 d-block mb-2"></i>
-            Witaj w Systemie Zamówień
+            <i class="bi bi-person-circle fs-1 d-block mb-2 text-primary"></i>
+            Witaj w Systemie
         </div>
         <div class="card-body p-4">
             <form id="loginForm">
                 <div class="mb-3">
-                    <label class="form-label text-muted fw-bold small">NAZWA UŻYTKOWNIKA</label>
+                    <label class="form-label text-muted fw-bold" style="font-size: 0.75em;">NAZWA UŻYTKOWNIKA</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
-                        <input type="text" id="loginInput" class="form-control" placeholder="Np. Lider LCM" required>
+                        <input type="text" id="loginInput" class="form-control" placeholder="Np. Kierownik" required>
                     </div>
                 </div>
                 <div class="mb-4">
-                    <label class="form-label text-muted fw-bold small">HASŁO</label>
+                    <label class="form-label text-muted fw-bold" style="font-size: 0.75em;">HASŁO</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light text-muted"><i class="bi bi-lock"></i></span>
-                        <input type="password" id="passInput" class="form-control" placeholder="Twoje tajne hasło..." required>
+                        <input type="password" id="passInput" class="form-control" placeholder="Wpisz hasło..." required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 py-2 fs-5" id="loginBtn">
-                    Zaloguj się do Sklepu <i class="bi bi-arrow-right-circle ms-1"></i>
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="loginBtn">
+                    Zaloguj się <i class="bi bi-arrow-right ms-1"></i>
                 </button>
             </form>
         </div>
     </div>
 
-    <div id="view-lider" class="view-section card mx-auto mb-4" style="max-width: 650px;">
+    <div id="view-lider" class="view-section card mx-auto mb-4" style="max-width: 800px;">
         <div class="card-header bg-primary text-white py-3">
-            <i class="bi bi-plus-circle me-1"></i> Panel Lidera - Nowe Zamówienie
+            <i class="bi bi-plus-circle me-1"></i> Złóż nowe zapotrzebowanie
         </div>
         <div class="card-body p-4">
             <form id="orderForm" onsubmit="submitOrder(event)">
-                <div class="row">
-                    <div class="col-md-8 mb-3">
-                        <label class="form-label fw-bold small text-muted">PRODUKT / NAZWA RZECZY</label>
-                        <input type="text" id="produkt" class="form-control" placeholder="Co zamawiasz?" required>
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <label class="form-label fw-bold text-muted small">PRODUKT / NAZWA RZECZY</label>
+                        <input type="text" id="produkt" class="form-control bg-light" placeholder="Co zamawiasz?" required>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label fw-bold small text-muted">STREFA / DZIAŁ</label>
-                        <select id="strefa" class="form-select" required>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-muted small">STREFA / DZIAŁ</label>
+                        <select id="strefa" class="form-select bg-light" required>
                             <option value="" disabled selected>Wybierz...</option>
                             <option value="OCR">OCR</option>
                             <option value="LCM">LCM</option>
                             <option value="LCDR">LCDR</option>
                         </select>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label fw-bold small text-muted">ILOŚĆ</label>
-                        <input type="number" id="ilosc" class="form-control" min="1" value="1" required>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold text-muted small">ILOŚĆ</label>
+                        <input type="number" id="ilosc" class="form-control bg-light text-center" min="1" value="1" required>
                     </div>
-                    <div class="col-md-8 mb-3">
-                        <label class="form-label fw-bold small text-muted">LINK DO PRODUKTU</label>
-                        <input type="url" id="link" class="form-control" placeholder="https://www.sklep.pl/..." required>
+                    <div class="col-12">
+                        <label class="form-label fw-bold text-muted small">LINK DO SKLEPU</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-link-45deg"></i></span>
+                            <input type="url" id="link" class="form-control bg-light" placeholder="Wklej pełny adres URL (https://...)" required>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-4">
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold shadow-sm">
+                            <i class="bi bi-cart-plus me-1"></i> Wyślij do akceptacji
+                        </button>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success w-100 py-2 mt-2 fs-5">
-                    <i class="bi bi-cart-plus me-1"></i> Dodaj do listy zakupów
-                </button>
             </form>
         </div>
     </div>
 
-    <div id="view-table" class="view-section card shadow-sm">
+    <div id="view-table" class="view-section card shadow-sm mb-5">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
-            <span id="table-title" class="fs-5"><i class="bi bi-list-columns-reverse me-2"></i> Baza Zgłoszeń</span>
+            <span id="table-title" class="fs-6 fw-bold"><i class="bi bi-list-columns-reverse me-2"></i> Baza Zgłoszeń</span>
             <button class="btn btn-sm btn-outline-light" onclick="loadData()">
-                <i class="bi bi-arrow-clockwise"></i> Odśwież listę
+                <i class="bi bi-arrow-clockwise"></i> Pobierz nowe
             </button>
         </div>
         <div class="card-body p-3">
             
-            <div class="search-container mb-3">
-                <div class="input-group input-group-search">
+            <div class="filters-wrapper d-flex flex-wrap justify-content-between align-items-center gap-3">
+                
+                <div class="d-flex gap-2 flex-wrap" id="statusFilters">
+                    <span class="text-muted small fw-bold mt-1 me-2 d-none d-md-block">SZYBKI FILTR:</span>
+                    <button class="btn btn-dark btn-sm active" onclick="filterByStatus('wszystkie', this)">Wszystkie</button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="filterByStatus('oczekujące', this)">Oczekujące</button>
+                    <button class="btn btn-outline-warning btn-sm" onclick="filterByStatus('zaakceptowane', this)">Zaakceptowane</button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="filterByStatus('zamówione', this)">Zamówione</button>
+                    <button class="btn btn-outline-success btn-sm" onclick="filterByStatus('dostarczone', this)">Dostarczone</button>
+                </div>
+
+                <div class="input-group input-group-search" style="max-width: 300px;">
                     <span class="input-group-text search-icon-btn text-muted"><i class="bi bi-search"></i></span>
-                    <input type="text" id="searchInput" class="form-control search-input" placeholder="Wyszukaj po nazwie, zonie, osobie... (dyn. filtr)">
+                    <input type="text" id="searchInput" class="form-control search-input text-muted" placeholder="Szukaj produktu lub osoby...">
                 </div>
             </div>
 
-            <div class="table-responsive">
+            <div class="table-responsive border">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="sticky-top">
+                    <thead class="sticky-top shadow-sm">
                         <tr>
-                            <th class="ps-3">Produkt</th>
-                            <th>Strefa</th>
+                            <th class="text-center" style="width: 50px;">L.p.</th>
+                            <th style="min-width: 200px;">Produkt</th>
+                            <th class="text-center">Strefa</th>
                             <th class="text-center">Ilość</th>
-                            <th>Data</th>
-                            <th>Kto</th>
-                            <th>Link</th>
-                            <th>Status</th>
+                            <th class="text-center">Data</th>
+                            <th class="text-center">Zgłasza</th>
+                            <th class="text-center">Link</th>
+                            <th class="text-center" style="min-width: 140px;">Status</th>
                             <th>Uwagi / Powód</th>
-                            <th class="text-center pe-3">Akcja</th>
+                            <th class="text-center" style="min-width: 130px;">Akcja</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody">
-                        <tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2 text-primary"></div>Ładowanie najnowszych danych...</td></tr>
+                        <tr><td colspan="10" class="text-center text-muted py-5"><div class="spinner-border text-primary mb-3"></div><br>Ładowanie najnowszych danych z chmury...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -192,14 +209,13 @@
 
 <script>
     // ==========================================
-    // TWÓJ AKTUALNY LINK Z GOOGLE APPS SCRIPT
+    // TWÓJ LINK Z GOOGLE APPS SCRIPT
     // ==========================================
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmcUfWAvqPCiTzt55VSCZM_tVJJShRTAL28JT6nINYQSFBGVFEVSzLi3plClmmwE65jg/exec'; 
     
     let currentRole = 'none';
     let currentUser = '';
 
-    // NOWA BAZA UŻYTKOWNIKÓW
     const users = {
         'lider lcm': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCM' },
         'lider lcdr': { haslo: 'tpv12345!', rola: 'lider', nazwa: 'Lider LCDR' },
@@ -208,7 +224,6 @@
         'łukasz': { haslo: 'tpv12345!', rola: 'lukasz', nazwa: 'Łukasz' }
     };
 
-    // --- LOGIKA LOGOWANIA ---
     window.onload = () => {
         const savedRole = localStorage.getItem('userRole');
         const savedLogin = localStorage.getItem('userLogin');
@@ -246,11 +261,11 @@
 
         if (currentRole === 'lider') {
             document.getElementById('view-lider').classList.add('active-view');
-            document.getElementById('table-title').innerHTML = '<i class="bi bi-cart3 me-2"></i> Lista wszystkich Twoich zamówień';
+            document.getElementById('table-title').innerHTML = 'Moje Zgłoszenia i Statusy';
         } else if (currentRole === 'kierownik') {
-            document.getElementById('table-title').innerHTML = '<i class="bi bi-ui-checks me-2"></i> Panel Akceptacji - Kierownik';
+            document.getElementById('table-title').innerHTML = 'Panel Akceptacji Zamówień';
         } else if (currentRole === 'lukasz') {
-            document.getElementById('table-title').innerHTML = '<i class="bi bi-cart-dash me-2"></i> Panel Realizacji - Łukasz';
+            document.getElementById('table-title').innerHTML = 'Panel Realizacji Zakupów';
         }
         
         loadData();
@@ -262,29 +277,23 @@
         location.reload(); 
     }
 
-    // --- FUNKCJA NAPRAWIAJĄCA BRZYDKĄ DATĘ ---
     function formatDate(dateStr) {
         if (!dateStr) return '';
         if (typeof dateStr === 'string' && dateStr.includes('.')) return dateStr;
-        
         try {
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return dateStr; 
-            return d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + 
-                   d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute:'2-digit' });
-        } catch (e) {
-            return dateStr;
-        }
+            return d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' }) + '<br><small class="text-muted">' + 
+                   d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute:'2-digit' }) + '</small>';
+        } catch (e) { return dateStr; }
     }
 
-    // --- DODAWANIE NOWEGO ZAMÓWIENIA ---
     async function submitOrder(e) {
         e.preventDefault();
-        
         const btn = e.target.querySelector('button');
         const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wysyłanie do bazy...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wysyłanie...';
 
         const data = {
             action: 'add',
@@ -311,49 +320,56 @@
         }
     }
 
-    // --- POBIERANIE DANYCH Z GOOGLE ---
     async function loadData() {
         const tbody = document.getElementById('ordersTableBody');
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2 text-primary"></div>Odświeżanie listy zamówień...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-5"><div class="spinner-border text-primary mb-3"></div><br>Odświeżanie danych...</td></tr>';
         
         try {
             const response = await fetch(SCRIPT_URL);
             const data = await response.json();
             renderTable(data);
+            
+            // Po załadowaniu danych resetujemy filtry do widoku "Wszystkie"
+            document.getElementById('searchInput').value = "";
+            const allBtn = document.querySelector('#statusFilters button:first-child');
+            filterByStatus('wszystkie', allBtn);
+            
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-danger text-center py-4"><i class="bi bi-exclamation-triangle-fill me-2"></i>Błąd pobierania danych. Zaktualizowałeś Apps Script?</td></tr>';
-            console.error(error);
+            tbody.innerHTML = '<tr><td colspan="10" class="text-danger text-center py-4"><i class="bi bi-exclamation-triangle-fill fs-3 d-block mb-2"></i>Błąd pobierania danych z Google.</td></tr>';
         }
     }
 
-    // --- GENEROWANIE TABELI I PRZYCISKÓW ---
     function renderTable(data) {
         const tbody = document.getElementById('ordersTableBody');
         tbody.innerHTML = '';
 
         if(data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4"><i class="bi bi-inbox fs-4 d-block mb-2"></i>Brak zamówień w bazie</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-3"></i>Brak zamówień w bazie</td></tr>';
             return;
         }
 
-        // Odwracamy żeby nowe zamówienia były u góry
+        // data.reverse() daje najnowsze na górę. Dodajemy licznik do L.p.
+        let lpCounter = 1;
+        
         data.reverse().forEach(row => { 
             let tr = document.createElement('tr');
+            
+            // Dodajemy niewidoczny atrybut do filtrowania statusów
+            tr.setAttribute('data-status', row.status.toLowerCase());
+            
             let actionButtons = '-';
             
-            // Przyciski Akcji na podstawie Roli i Statusu
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
                 actionButtons = `
-                    <button class="btn btn-sm btn-success w-100 mb-1" onclick="updateStatus(${row.id}, 'Zaakceptowane')"><i class="bi bi-check-lg"></i> Akceptuj</button>
-                    <button class="btn btn-sm btn-danger w-100" onclick="rejectOrder(${row.id})"><i class="bi bi-x-lg"></i> Odrzuć</button>
+                    <button class="btn btn-sm btn-success w-100 mb-1 shadow-sm" onclick="updateStatus(${row.id}, 'Zaakceptowane')"><i class="bi bi-check-lg"></i> Akceptuj</button>
+                    <button class="btn btn-sm btn-outline-danger w-100 shadow-sm bg-white" onclick="rejectOrder(${row.id})"><i class="bi bi-x-lg"></i> Odrzuć</button>
                 `;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
-                actionButtons = `<button class="btn btn-sm btn-primary w-100" onclick="updateStatus(${row.id}, 'Zamówione')"><i class="bi bi-cart-check"></i> Oznacz Kupione</button>`;
+                actionButtons = `<button class="btn btn-sm btn-primary w-100 shadow-sm" onclick="updateStatus(${row.id}, 'Zamówione')"><i class="bi bi-cart-check"></i> Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white" onclick="updateStatus(${row.id}, 'Dostarczone')"><i class="bi bi-box-seam"></i> Dostarczono</button>`;
+                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white shadow-sm" onclick="updateStatus(${row.id}, 'Dostarczone')"><i class="bi bi-box-seam"></i> Dostarczono</button>`;
             }
 
-            // Kolorowanie Statusu
             let statusColor = "bg-secondary";
             let statusIcon = "bi-hourglass-split";
             if(row.status === 'Zaakceptowane') { statusColor = "bg-warning text-dark"; statusIcon = "bi-check2-circle"; }
@@ -361,82 +377,135 @@
             if(row.status === 'Dostarczone') { statusColor = "bg-success"; statusIcon = "bi-box-seam"; }
             if(row.status === 'Odrzucone') { statusColor = "bg-danger"; statusIcon = "bi-x-octagon"; }
 
-            // Lepsza data
             const ladnaData = formatDate(row.dataZam);
 
             tr.innerHTML = `
-                <td class="fw-bold ps-3">${row.produkt}</td>
-                <td><span class="badge bg-dark">${row.strefa}</span></td>
+                <td class="text-center text-muted fw-bold small">${lpCounter++}</td>
+                <td class="fw-bold text-primary-emphasis">${row.produkt}</td>
+                <td class="text-center"><span class="badge border border-secondary text-secondary bg-light">${row.strefa}</span></td>
                 <td class="text-center fw-bold fs-6">${row.ilosc}</td>
-                <td class="small text-muted"><i class="bi bi-calendar3 me-1"></i>${ladnaData}</td>
-                <td><i class="bi bi-person me-1"></i>${row.kto}</td>
-                <td><a href="${row.link}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-link-45deg"></i> Sklep</a></td>
-                <td><span class="badge ${statusColor}"><i class="bi ${statusIcon} me-1"></i>${row.status}</span></td>
+                <td class="text-center align-middle">${ladnaData}</td>
+                <td class="text-center small"><i class="bi bi-person text-muted me-1"></i>${row.kto}</td>
+                <td class="text-center"><a href="${row.link}" target="_blank" class="btn btn-sm btn-light border text-primary"><i class="bi bi-box-arrow-up-right"></i> Sklep</a></td>
+                <td class="text-center"><span class="badge ${statusColor} w-100 py-2"><i class="bi ${statusIcon} me-1"></i>${row.status}</span></td>
                 <td><div class="powod-text">${row.powod}</div></td>
-                <td class="pe-3" style="min-width: 140px;">${actionButtons}</td>
+                <td class="text-center align-middle">${actionButtons}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // --- OBSŁUGA ODRZUCANIA Z POWODEM ---
-    function rejectOrder(idWiersza) {
-        const powod = prompt("Podaj powód odrzucenia (To pole jest wymagane!):");
+    // --- FILTROWANIE PO PRZYCISKACH (STATUSY) ---
+    function filterByStatus(statusName, btnElement) {
+        // Zmiana stylów przycisków
+        const buttons = document.querySelectorAll('#statusFilters button');
+        buttons.forEach(b => {
+            b.classList.remove('btn-dark', 'text-white');
+            b.classList.add('btn-outline-' + b.classList[1].split('-')[2]); // powrót do outline
+            if(b.classList.contains('active')) b.classList.remove('active');
+        });
         
-        if (powod === null) return; 
-        if (powod.trim() === "") {
-            alert("Musisz podać powód odrzucenia!");
-            return;
-        }
+        // Zaznaczony przycisk
+        btnElement.classList.remove(/btn-outline-[a-z]+/);
+        btnElement.classList.add('btn-dark', 'text-white', 'active');
 
+        // Logika pokazywania wierszy
+        const rows = document.querySelectorAll('#ordersTableBody tr');
+        rows.forEach(row => {
+            if(statusName === 'wszystkie') {
+                row.style.display = "";
+            } else {
+                const rowStatus = row.getAttribute('data-status');
+                if(rowStatus === statusName) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            }
+        });
+    }
+
+    // --- WYSZUKIWANIE TEKSTOWE ---
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const value = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#ordersTableBody tr');
+        
+        // Resetujemy przyciski filtrów na "Wszystkie"
+        const allBtn = document.querySelector('#statusFilters button:first-child');
+        filterByStatus('wszystkie', allBtn);
+
+        rows.forEach(row => {
+            const textContent = row.innerText.toLowerCase();
+            row.style.display = textContent.includes(value) ? "" : "none";
+        });
+    });
+
+    function rejectOrder(idWiersza) {
+        const powod = prompt("Podaj powód odrzucenia (Wymagane):");
+        if (powod === null) return; 
+        if (powod.trim() === "") { alert("Musisz podać powód!"); return; }
         updateStatus(idWiersza, 'Odrzucone', powod);
     }
 
-    // --- ZMIANA STATUSU I POWODU (Z NAPRAWĄ BLADOŚCI) ---
+    // --- ZMIANA STATUSU BEZ PRZEŁADOWANIA CAŁEJ STRONY ---
     async function updateStatus(idWiersza, newStatus, reason = '') {
-        if(newStatus !== 'Odrzucone' && !confirm(`Czy na pewno chcesz zmienić status na: "${newStatus}"?`)) return;
+        if(newStatus !== 'Odrzucone' && !confirm(`Zmienić status na: "${newStatus}"?`)) return;
+
+        let clickedRow;
+        const rows = document.querySelectorAll('#ordersTableBody tr');
+        rows.forEach(tr => {
+            const btn = tr.querySelector(`button[onclick*="updateStatus(${idWiersza}"]`) || tr.querySelector(`button[onclick*="rejectOrder(${idWiersza})"]`);
+            if (btn) clickedRow = tr;
+        });
+
+        if (clickedRow) {
+            clickedRow.style.opacity = '0.4';
+            clickedRow.style.pointerEvents = 'none'; 
+        }
 
         try {
-            // Tabela robi się blada na czas wysyłania (efekt ładowania)
-            document.getElementById('ordersTableBody').style.opacity = '0.5';
-            
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'update', id: idWiersza, newStatus: newStatus, reason: reason }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
             
-            // NAPRAWA: Wyłączamy bladość po udanym zapisie!
-            document.getElementById('ordersTableBody').style.opacity = '1';
-            
-            loadData(); // Odśwież widok
+            if (clickedRow) {
+                const statusCell = clickedRow.querySelector('td:nth-child(8)');
+                
+                let statusColor = "bg-secondary";
+                let statusIcon = "bi-hourglass-split";
+                if(newStatus === 'Zaakceptowane') { statusColor = "bg-warning text-dark"; statusIcon = "bi-check2-circle"; }
+                if(newStatus === 'Zamówione') { statusColor = "bg-primary"; statusIcon = "bi-cart-check"; }
+                if(newStatus === 'Dostarczone') { statusColor = "bg-success"; statusIcon = "bi-box-seam"; }
+                if(newStatus === 'Odrzucone') { statusColor = "bg-danger"; statusIcon = "bi-x-octagon"; }
+
+                statusCell.innerHTML = `<span class="badge ${statusColor} w-100 py-2"><i class="bi ${statusIcon} me-1"></i>${newStatus}</span>`;
+                
+                // Uaktualnij ukryty atrybut statusu, by filtry nadal działały
+                clickedRow.setAttribute('data-status', newStatus.toLowerCase());
+
+                if (newStatus === 'Odrzucone') {
+                    const reasonCell = clickedRow.querySelector('td:nth-child(9) .powod-text');
+                    if(reasonCell) reasonCell.innerText = reason;
+                }
+
+                const actionCell = clickedRow.querySelector('td:nth-child(10)');
+                actionCell.innerHTML = '<span class="badge bg-light text-success border border-success w-100 py-2"><i class="bi bi-check-all"></i> OK</span>';
+
+                clickedRow.style.opacity = '1';
+                clickedRow.style.pointerEvents = 'auto';
+            } else {
+                loadData();
+            }
         } catch (error) {
-            alert('Błąd aktualizacji statusu: ' + error);
-            // Wyłączamy bladość również w przypadku błędu
-            document.getElementById('ordersTableBody').style.opacity = '1';
+            alert('Błąd serwera: ' + error);
+            if (clickedRow) {
+                clickedRow.style.opacity = '1';
+                clickedRow.style.pointerEvents = 'auto';
+            }
         }
     }
-    
-    // --- DYNAMICZNE FILTROWANIE TABELI (WYSZUKIWANA) ---
-    document.getElementById('searchInput').addEventListener('keyup', function() {
-        const value = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#ordersTableBody tr');
-        
-        rows.forEach(row => {
-            const produkt = row.querySelector('td:nth-child(1)').innerText.toLowerCase();
-            const strefa = row.querySelector('td:nth-child(2)').innerText.toLowerCase();
-            const data = row.querySelector('td:nth-child(4)').innerText.toLowerCase();
-            const kto = row.querySelector('td:nth-child(5)').innerText.toLowerCase();
-            const status = row.querySelector('td:nth-child(7)').innerText.toLowerCase();
-            
-            // Sprawdzamy czy wartość wyszukiwania jest w którymkolwiek z kluczowych pól
-            if (produkt.includes(value) || strefa.includes(value) || data.includes(value) || kto.includes(value) || status.includes(value)) {
-                row.style.display = ""; // Pokaż wiersz
-            } else {
-                row.style.display = "none"; // Ukryj wiersz
-            }
-        });
-    });
 </script>
 </body>
 </html>
