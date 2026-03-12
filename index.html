@@ -64,7 +64,7 @@
         .table { margin-bottom: 0; }
         .table thead th { background-color: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #64748b; text-transform: uppercase; font-size: 0.75em; padding: 1rem; position: sticky; top: 0; z-index: 10; }
         .table tbody td { vertical-align: middle; font-size: 0.9em; padding: 1rem 0.5rem; border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
-        .table-hover tbody tr:nth-of-type(odd) { background-color: rgba(241, 245, 249, 0.4); } /* Delikatna zebra */
+        .table-hover tbody tr:nth-of-type(odd) { background-color: rgba(241, 245, 249, 0.4); } 
         .table-hover tbody tr:hover td { background-color: #f0f9ff; }
         
         .powod-text { max-width: 180px; font-size: 0.85em; color: #ef4444; font-style: italic; line-height: 1.3; }
@@ -72,17 +72,17 @@
 
         /* --- SOFT BADGES (Statusy) --- */
         .badge { padding: 0.6em 1em; font-size: 0.75em; border-radius: 8px; font-weight: 700; letter-spacing: 0.3px; display: inline-block; width: 100%; text-align: center;}
-        .badge-soft-secondary { background-color: #f1f5f9; color: #475569; } /* Oczekujące */
-        .badge-soft-warning { background-color: #fef3c7; color: #b45309; } /* Zaakceptowane */
-        .badge-soft-primary { background-color: #dbeafe; color: #1d4ed8; } /* Zamówione */
-        .badge-soft-success { background-color: #dcfce3; color: #15803d; } /* Dostarczone */
-        .badge-soft-danger { background-color: #fee2e2; color: #b91c1c; } /* Odrzucone */
+        .badge-soft-secondary { background-color: #f1f5f9; color: #475569; } 
+        .badge-soft-warning { background-color: #fef3c7; color: #b45309; } 
+        .badge-soft-primary { background-color: #dbeafe; color: #1d4ed8; } 
+        .badge-soft-success { background-color: #dcfce3; color: #15803d; } 
+        .badge-soft-danger { background-color: #fee2e2; color: #b91c1c; } 
 
-        /* --- ILOŚĆ I JEDNOSTKI (Idealne wyrównanie) --- */
-        .qty-wrapper { display: flex; justify-content: center; align-items: center; gap: 6px; }
-        .badge-unit { font-size: 0.75em; background: #e2e8f0; color: #475569; padding: 3px 6px; border-radius: 6px; font-weight: 600; }
-        .editable-qty { cursor: pointer; text-decoration: underline dashed #cbd5e1; font-size: 1.1em; padding: 2px 6px; border-radius: 6px; transition: all 0.2s;}
-        .editable-qty:hover { color: #3b82f6; text-decoration: underline solid #3b82f6; background: rgba(59,130,246,0.1); }
+        /* --- ILOŚĆ I JEDNOSTKI (Idealne wyrównanie Grid) --- */
+        .qty-container { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; max-width: 80px; margin: 0 auto; }
+        .qty-val { text-align: right; font-size: 1.1em; }
+        .unit-box { text-align: left; }
+        .badge-unit { font-size: 0.75em; background: #e2e8f0; color: #475569; padding: 3px 6px; border-radius: 6px; font-weight: 600; display: inline-block; }
 
         /* --- PRIORYTET --- */
         .row-urgent { background-color: rgba(239, 68, 68, 0.04) !important; border-left: 4px solid var(--urgent-red) !important; }
@@ -283,7 +283,7 @@
                             <th class="text-center">Strefa</th>
                             <th class="text-center" style="min-width: 110px;">Ilość</th>
                             <th class="text-center">Cena</th>
-                            <th class="text-center">Data</th>
+                            <th class="text-center">Data Zgłoszenia</th>
                             <th class="text-center">Zgłasza</th>
                             <th class="text-center">Sklep</th>
                             <th class="text-center" style="min-width: 140px;">Status</th>
@@ -352,7 +352,6 @@
 
     function logout() { localStorage.clear(); location.reload(); }
 
-    // --- FUNKCJE POMOCNICZE (TOAST I LINKI) ---
     function showToast(msg, type='success') {
         const toast = document.getElementById('actionToast');
         const msgEl = document.getElementById('toastMessage');
@@ -386,30 +385,30 @@
         loadData();
     }
 
-    // --- EDYCJA W LOCIE ---
+    // --- EDYCJA ILOŚCI ---
     async function editQty(id, oldQty, btnElement) {
         const newQty = prompt("Wpisz nową ilość:", oldQty);
         if (newQty && newQty != oldQty) {
             const row = btnElement.closest('tr');
-            const qtyCell = row.querySelector('.qty-wrapper');
-            const unitBadge = qtyCell.querySelector('.badge-unit').outerHTML; 
+            const qtyValCell = row.querySelector('.qty-val');
             
-            qtyCell.innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
+            qtyValCell.innerHTML = '<span class="spinner-border spinner-border-sm text-primary"></span>';
             try {
                 await fetch(SCRIPT_URL, { 
                     method: 'POST', body: JSON.stringify({ action: 'edit', id: id, newQty: newQty }),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
-                qtyCell.innerHTML = `<span class="editable-qty" onclick="editQty(${id}, ${newQty}, this)">${newQty}</span>${unitBadge}`;
+                qtyValCell.innerText = newQty;
+                // Aktualizujemy onclicka w przycisku edycji
+                btnElement.setAttribute('onclick', `editQty(${id}, ${newQty}, this)`);
                 showToast('Zaktualizowano ilość!');
             } catch(e) {
                 showToast('Błąd aktualizacji', 'danger');
-                qtyCell.innerHTML = `<span class="editable-qty" onclick="editQty(${id}, ${oldQty}, this)">${oldQty}</span>${unitBadge}`;
+                qtyValCell.innerText = oldQty;
             }
         }
     }
 
-    // --- DODAWANIE ---
     async function submitOrder(e) {
         e.preventDefault();
         const btn = e.target.querySelector('button');
@@ -431,10 +430,8 @@
         finally { btn.disabled = false; btn.innerHTML = originalText; }
     }
 
-    // --- ŁADOWANIE I RENDEROWANIE BAZY ---
     async function loadData() {
         const tbody = document.getElementById('ordersTableBody');
-        // SKELETON LOADER
         let skeletonHtml = '';
         for(let i=0; i<5; i++) skeletonHtml += `<tr><td colspan="11"><div class="skeleton-box"></div></td></tr>`;
         tbody.innerHTML = skeletonHtml;
@@ -461,7 +458,6 @@
         let statOczek = 0, statZaakc = 0, statZamow = 0, statDost = 0;
         
         data.reverse().forEach(row => { 
-            // Liczenie statystyk
             if (row.status === 'Oczekujące') statOczek++;
             if (row.status === 'Zaakceptowane') statZaakc++;
             if (row.status === 'Zamówione') statZamow++;
@@ -473,21 +469,26 @@
             tr.setAttribute('data-status', row.status.toLowerCase());
             if (row.priorytet === 'PILNE') tr.className = 'row-urgent';
             
+            // LOGIKA DOSTĘPU (Ignoruje wielkość liter)
             const czyToWlasciciel = row.kto && currentUser && (row.kto.toLowerCase() === currentUser.toLowerCase());
+            
             let actionButtons = '-';
             
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
-                actionButtons = `<button class="btn btn-sm btn-success w-100 mb-1" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)">Akceptuj</button>
-                                 <button class="btn btn-sm btn-outline-danger w-100 bg-white" onclick="rejectOrder(${row.id}, this)">Odrzuć</button>`;
+                actionButtons = `<button class="btn btn-sm btn-success w-100 mb-1 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)">Akceptuj</button>
+                                 <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm bg-white" onclick="rejectOrder(${row.id}, this)">Odrzuć</button>`;
             } else if (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel) {
-                actionButtons = `<button class="btn btn-sm btn-outline-danger w-100" onclick="deleteOrder(${row.id}, this)" title="Anuluj zapotrzebowanie"><i class="bi bi-trash"></i> Usuń</button>`;
+                // DODANO PRZYCISK EDYTUJ ORAZ USUŃ DLA LIDERÓW (TYLKO SWOJE)
+                actionButtons = `
+                    <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill shadow-sm" onclick="editQty(${row.id}, ${row.ilosc}, this)" title="Edytuj Ilość"><i class="bi bi-pencil-square"></i> Edytuj</button>
+                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm" onclick="deleteOrder(${row.id}, this)" title="Anuluj zapotrzebowanie"><i class="bi bi-trash"></i> Usuń</button>
+                `;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
-                actionButtons = `<button class="btn btn-sm btn-primary w-100" onclick="updateStatus(${row.id}, 'Zamówione', '', this)">Kupione</button>`;
+                actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zamówione', '', this)">Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)">Odbiór paczki</button>`;
+                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)">Odbiór paczki</button>`;
             }
 
-            // SOFT BADGES DLA STATUSÓW
             let sClass = "badge-soft-secondary";
             if(row.status === 'Zaakceptowane') sClass = "badge-soft-warning";
             if(row.status === 'Zamówione') sClass = "badge-soft-primary";
@@ -497,18 +498,19 @@
             const pBadge = row.priorytet === 'PILNE' ? '<span class="badge-urgent">PILNE</span>' : '';
             const cenaWidok = row.cena ? `<span class="price-tag">${row.cena} zł</span>` : '-';
             
-            // IDEALNE WYRÓWNANIE ILOŚCI (FLEXBOX)
-            const canEdit = (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel);
-            const qtyHtml = canEdit ? `<span class="editable-qty" onclick="editQty(${row.id}, ${row.ilosc}, this)" title="Edytuj">${row.ilosc}</span>` : `<span class="fw-bold fs-6 text-primary">${row.ilosc}</span>`;
-            const jednostkaHtml = `<span class="badge-unit">${row.jednostka || 'PCS'}</span>`;
+            // ZAMKNIĘCIE W GRID (Idealne wyrównanie)
+            const qtyHtml = `<div class="qty-container">
+                                <div class="qty-val fw-bold text-primary">${row.ilosc}</div>
+                                <div class="unit-box"><span class="badge-unit">${row.jednostka || 'PCS'}</span></div>
+                             </div>`;
 
             tr.innerHTML = `
                 <td class="text-center text-muted small">${lp++}</td>
                 <td class="text-dark"><div class="d-flex align-items-center">${pBadge}<span class="fw-bolder" style="font-size: 1.05em;">${row.produkt}</span></div></td>
                 <td class="text-center"><span class="badge bg-light text-dark border border-secondary-subtle px-2 py-1 rounded shadow-sm">${row.strefa}</span></td>
-                <td class="text-center"><div class="qty-wrapper">${qtyHtml}${jednostkaHtml}</div></td>
+                <td class="text-center">${qtyHtml}</td>
                 <td class="text-center">${cenaWidok}</td>
-                <td class="text-center align-middle text-muted small">${formatDate(row.dataZam)}</td>
+                <td class="text-center align-middle text-muted small fw-medium">${formatDate(row.dataZam)}</td>
                 <td class="text-center small text-muted"><i class="bi bi-person text-secondary me-1"></i>${row.kto}</td>
                 <td class="text-center">
                     <div class="btn-group shadow-sm">
@@ -523,7 +525,6 @@
             tbody.appendChild(tr);
         });
 
-        // Aktualizacja Dashboardu
         document.getElementById('stat-oczekujace').innerText = statOczek;
         document.getElementById('stat-zaakceptowane').innerText = statZaakc;
         document.getElementById('stat-zamowione').innerText = statZamow;
@@ -594,6 +595,9 @@
                 row.style.opacity = '1'; row.style.pointerEvents = 'auto';
                 showToast(`Zmieniono status na: ${stat}`);
                 if (stat === 'Dostarczone' && !showArchive) setTimeout(() => row.style.display = 'none', 500);
+                
+                // Aktualizujemy statystyki odświeżając dane w tle
+                setTimeout(loadData, 1000); 
             }
         } catch (error) { showToast('Błąd sieci', 'danger'); row.style.opacity = '1'; row.style.pointerEvents = 'auto'; }
     }
