@@ -14,7 +14,7 @@
             --primary-glow: rgba(59, 130, 246, 0.4);
             --success-glow: rgba(34, 197, 94, 0.4);
             --dark-glow: rgba(15, 23, 42, 0.3);
-            --bg-color: #f0f4f8; /* Bardzo jasny, chłodny niebieski */
+            --bg-color: #f0f4f8; 
             --urgent-red: #ef4444;
         }
         
@@ -38,7 +38,6 @@
             70% { box-shadow: 0 0 15px 10px rgba(59, 130, 246, 0); }
             100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
         }
-        /* Animacja dla PILNYCH zamówień */
         @keyframes pulseUrgent {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
             70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
@@ -84,11 +83,9 @@
             padding: 1.2rem;
         }
         
-        /* Specjalne nagłówki kart */
         .header-primary { background: linear-gradient(135deg, #3b82f6, #0ea5e9); color: white; }
         .header-dark { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; }
 
-        /* --- PRZYCISKI I INPUTY --- */
         .form-control, .form-select {
             border-radius: 12px;
             border: 1px solid #e2e8f0;
@@ -117,7 +114,6 @@
         .btn-success { background: linear-gradient(135deg, #22c55e, #10b981); border: none; box-shadow: 0 4px 15px var(--success-glow); }
         .btn-success:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--success-glow); }
 
-        /* --- TABELA I ELEMENTY WENĘTRZNE --- */
         .table-responsive { max-height: 60vh; overflow-y: auto; border-radius: 12px; }
         .table { margin-bottom: 0; }
         .table thead th { 
@@ -135,24 +131,20 @@
         .badge { padding: 0.6em 0.9em; font-size: 0.75em; border-radius: 8px; font-weight: 600; }
         .powod-text { max-width: 180px; font-size: 0.85em; color: #ef4444; font-style: italic; line-height: 1.3; }
 
-        /* NOWE STYLE DLA PUNKTÓW 1, 2, 5 */
         .row-urgent { background-color: rgba(239, 68, 68, 0.05) !important; border-left: 5px solid var(--urgent-red) !important; }
         .badge-urgent { background-color: var(--urgent-red); animation: pulseUrgent 2s infinite; }
         .price-tag { color: #0891b2; font-weight: 700; font-family: monospace; }
         .archive-hidden { display: none !important; }
         .form-check-input:checked { background-color: #0f172a; border-color: #0f172a; }
 
-        /* NOWE STYLE DLA JEDNOSTEK I EDYCJI ILOŚCI */
         .badge-unit { font-size: 0.7em; background: #e2e8f0; color: #475569; margin-left: 6px; padding: 3px 6px; border-radius: 6px; vertical-align: middle; }
         .editable-qty { cursor: pointer; text-decoration: underline dashed #cbd5e1; transition: color 0.2s; padding: 2px 5px; }
         .editable-qty:hover { color: #3b82f6; text-decoration: underline solid #3b82f6; background: rgba(59,130,246,0.1); border-radius: 4px; }
 
-        /* --- WYSZUKIWARKA (Glow focus) --- */
         .filters-wrapper { background: #f8fafc; border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
         .search-container input { border-radius: 0 12px 12px 0; border-left: none; }
         .search-container span { border-radius: 12px 0 0 12px; border-right: none; background: #fff; }
 
-        /* Niestandardowy pasek przewijania */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -184,25 +176,11 @@
             </div>
             <h5 class="mb-0 mt-2 fw-bold text-white">AUTORYZACJA</h5>
         </div>
-        <div class="card-body p-4 pt-5">
+        <div class="card-body p-4 pt-5 text-center">
             <form id="loginForm">
-                <div class="mb-4">
-                    <label class="form-label text-slate-500 fw-bold" style="font-size: 0.75em; color: #64748b;">IDENTYFIKATOR UŻYTKOWNIKA</label>
-                    <div class="input-group shadow-sm">
-                        <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
-                        <input type="text" id="loginInput" class="form-control" placeholder="Np. Kierownik" required>
-                    </div>
-                </div>
-                <div class="mb-5">
-                    <label class="form-label text-slate-500 fw-bold" style="font-size: 0.75em; color: #64748b;">HASŁO DOSTĘPU</label>
-                    <div class="input-group shadow-sm">
-                        <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
-                        <input type="password" id="passInput" class="form-control" placeholder="••••••••" required>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary w-100 py-3 fs-6" id="loginBtn">
-                    ZALOGUJ SIĘ <i class="bi bi-arrow-right-short fs-5 align-middle"></i>
-                </button>
+                <input type="text" id="loginInput" class="form-control mb-3" placeholder="Identyfikator" required>
+                <input type="password" id="passInput" class="form-control mb-4" placeholder="Hasło" required>
+                <button type="submit" class="btn btn-primary w-100 py-3 fs-6">ZALOGUJ SIĘ</button>
             </form>
         </div>
     </div>
@@ -231,7 +209,7 @@
                         <label class="form-label fw-bold text-muted small">ILOŚĆ & JEDN.</label>
                         <div class="input-group shadow-sm">
                             <input type="number" id="ilosc" class="form-control text-center text-primary fw-bold" min="1" value="1" required>
-                            <select id="jednostka" class="form-select bg-light fw-bold text-secondary" style="max-width: 85px;">
+                            <select id="jednostka" class="form-select bg-light fw-bold text-secondary px-2" style="min-width: 80px;">
                                 <option value="PCS">PCS</option>
                                 <option value="BOX">BOX</option>
                                 <option value="ML">ML</option>
@@ -332,9 +310,6 @@
 </div>
 
 <script>
-    // ==========================================
-    // TWÓJ ZAKTUALIZOWANY LINK Z GOOGLE APPS SCRIPT
-    // ==========================================
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaocet4gWbk0cF7xe2gYxBNjVK18gxQACz_PB_KZfmojoztuggqChtmJX8qAEBMXGsfw/exec'; 
     
     let currentRole = 'none';
@@ -432,7 +407,6 @@
         loadData();
     }
 
-    // NOWE: EDYCJA ILOŚCI "W LOCIE"
     async function editQty(id, oldQty, el) {
         const newQty = prompt("Wpisz nową ilość:", oldQty);
         if (newQty && newQty != oldQty) {
@@ -464,7 +438,7 @@
             produkt: document.getElementById('produkt').value,
             strefa: document.getElementById('strefa').value,
             ilosc: document.getElementById('ilosc').value,
-            jednostka: document.getElementById('jednostka').value, // Pobieranie jednostki
+            jednostka: document.getElementById('jednostka').value,
             link: document.getElementById('link').value,
             kto: currentUser,
             priorytet: document.getElementById('priorytet').value, 
@@ -527,19 +501,18 @@
             
             let actionButtons = '-';
             
-            // Przyciski akcji wykorzystujące element (this), by uniknąć przeładowania
+            // ODBLOKOWANE DLA WSZYSTKICH LIDERÓW DO USUWANIA OCZEKUJĄCYCH
             if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
                 actionButtons = `
                     <button class="btn btn-sm btn-success w-100 mb-1 rounded-pill" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)"><i class="bi bi-check-lg"></i> Akceptuj</button>
                     <button class="btn btn-sm btn-outline-danger w-100 rounded-pill bg-white" onclick="rejectOrder(${row.id}, this)"><i class="bi bi-x-lg"></i> Odrzuć</button>
                 `;
-            } else if (currentRole === 'lider' && row.status === 'Oczekujące' && row.kto === currentUser) {
-                // ANULOWANIE DLA LIDERA TYLKO WŁASNYCH 
+            } else if (currentRole === 'lider' && row.status === 'Oczekujące') {
                 actionButtons = `<button class="btn btn-sm btn-outline-danger w-100 rounded-pill" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Anuluj</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
                 actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill" onclick="updateStatus(${row.id}, 'Zamówione', '', this)"><i class="bi bi-cart-check"></i> Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Odbiór paczki</button>`;
+                actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill" onclick="updateStatus(${row.id}, 'Dostarczone', '', this)" style="box-shadow: 0 4px 10px rgba(13, 202, 240, 0.4);"><i class="bi bi-box-seam"></i> Odbiór</button>`;
             }
 
             let statusColor = "bg-secondary";
@@ -552,9 +525,9 @@
             const pBadge = row.priorytet === 'PILNE' ? '<span class="badge badge-urgent me-1">PILNE</span>' : '';
             const cenaWidok = row.cena ? `<span class="price-tag">${row.cena} PLN</span>` : '-';
             
-            // Weryfikacja czy lider może edytować i doklejenie jednostki miary
-            const canEdit = (currentRole === 'lider' && row.status === 'Oczekujące' && row.kto === currentUser);
-            const qtyHtml = canEdit ? `<span class="editable-qty" onclick="editQty(${row.id}, ${row.ilosc}, this)">${row.ilosc}</span>` : row.ilosc;
+            // LIDER MOŻE EDYTOWAĆ ILOŚĆ KAŻDEGO OCZEKUJĄCEGO
+            const canEdit = (currentRole === 'lider' && row.status === 'Oczekujące');
+            const qtyHtml = canEdit ? `<span class="editable-qty" onclick="editQty(${row.id}, ${row.ilosc}, this)" title="Kliknij, aby zmienić">${row.ilosc}</span>` : row.ilosc;
             const jednostkaHtml = `<span class="badge-unit">${row.jednostka || 'PCS'}</span>`;
 
             tr.innerHTML = `
@@ -621,7 +594,6 @@
         updateStatus(idWiersza, 'Odrzucone', powod, btnElement);
     }
 
-    // USUWANIE BEZ PRZEŁADOWANIA
     async function deleteOrder(id, btnElement) {
         if (!confirm('Czy na pewno chcesz anulować to zgłoszenie?')) return;
         
@@ -635,7 +607,7 @@
                 body: JSON.stringify({ action: 'delete', id: id }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
-            clickedRow.remove(); // Usunięcie elementu w locie
+            clickedRow.remove(); 
         } catch(e) {
             alert('Błąd komunikacji: ' + e);
             clickedRow.style.opacity = '1';
@@ -643,7 +615,6 @@
         }
     }
 
-    // ZMIANA STATUSU BEZ PRZEŁADOWANIA CAŁEJ BAZY
     async function updateStatus(idWiersza, newStatus, reason = '', btnElement) {
         if(newStatus !== 'Odrzucone' && !confirm(`Potwierdzasz zmianę na: "${newStatus}"?`)) return;
         
@@ -662,7 +633,6 @@
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
             
-            // Logika UI po stronie przeglądarki (żeby uniknąć ponownego loadData)
             if (clickedRow) {
                 const statusCell = clickedRow.querySelector('td:nth-child(9)');
                 
@@ -688,7 +658,6 @@
                 clickedRow.style.filter = 'none';
                 clickedRow.style.pointerEvents = 'auto';
                 
-                // Ukrycie archiwalnego w locie jeśli jest schowane na przełączniku
                 if (newStatus === 'Dostarczone' && !showArchive) {
                     setTimeout(() => clickedRow.style.display = 'none', 400);
                 }
