@@ -620,6 +620,10 @@
         if(actionType === 'Odrzucone') {
             reason = prompt("Podaj powód odrzucenia dla wszystkich zaznaczonych pozycji:");
             if(reason === null) return;
+        } else if (actionType === 'Zamówione') {
+            const nrZam = prompt("Podaj wspólny numer zamówienia dla zaznaczonych pozycji (zostaw puste jeśli brak):");
+            if (nrZam === null) return;
+            if (nrZam.trim() !== '') reason = "Nr zam: " + nrZam.trim();
         } else if (actionType === 'delete') {
             if(!confirm(`Na pewno chcesz anulować ${checks.length} zgłoszeń?`)) return;
         } else {
@@ -830,7 +834,12 @@
     }
 
     async function updateStatus(id, stat, reason = '', btn) {
-        if(stat !== 'Odrzucone' && !confirm(`Potwierdzasz zmianę na: "${stat}"?`)) return;
+        if (stat === 'Zamówione') {
+            const nrZam = prompt("Podaj numer zamówienia / śledzenia (zostaw puste jeśli brak):");
+            if (nrZam === null) return;
+            if (nrZam.trim() !== '') reason = "Nr zam: " + nrZam.trim();
+        } else if(stat !== 'Odrzucone' && !confirm(`Potwierdzasz zmianę na: "${stat}"?`)) return;
+        
         const row = btn.closest('tr');
         if (row) { row.style.opacity = '0.4'; row.style.pointerEvents = 'none'; }
 
@@ -847,6 +856,7 @@
                 row.querySelector('.status-col').innerHTML = `<span class="badge ${sClass}">${stat}</span>`;
                 row.setAttribute('data-status', stat.toLowerCase());
                 if (stat === 'Odrzucone') row.querySelector('td:nth-child(11)').innerText = reason;
+                if (stat === 'Zamówione') row.querySelector('td:nth-child(11)').innerText = reason;
                 row.querySelector('td:nth-child(12)').innerHTML = '<span class="badge bg-light text-success border border-success"><i class="bi bi-check-all"></i> Gotowe</span>';
 
                 row.style.opacity = '1'; row.style.pointerEvents = 'auto';
