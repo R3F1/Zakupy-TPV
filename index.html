@@ -640,6 +640,12 @@
 
             try {
                 if(actionType === 'delete') {
+                    // OBEJŚCIE DLA BACKENDU - Reset na Oczekujące przed usunięciem
+                    let rowData = globalData.find(r => r.id == id);
+                    if (rowData && rowData.status !== 'Oczekujące') {
+                        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'update', id: id, newStatus: 'Oczekujące', reason: '' }) });
+                    }
+                    
                     await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id: id }) });
                     globalData = globalData.filter(r => r.id != id);
                     row.remove();
@@ -857,14 +863,28 @@
 
     async function deleteOrder(id, btnElement) {
         if (!confirm('Anulować to zgłoszenie?')) return;
-        const row = btnElement.closest('tr'); row.style.opacity = '0.3'; row.style.pointerEvents = 'none';
+        const row = btnElement.closest('tr'); 
+        row.style.opacity = '0.3'; 
+        row.style.pointerEvents = 'none';
         try {
+            // OBEJŚCIE DLA BACKENDU - Zmieniamy status z powrotem na Oczekujące tuż przed komendą usunięcia
+            let orderData = globalData.find(r => r.id == id);
+            if (orderData && orderData.status !== 'Oczekujące') {
+                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'update', id: id, newStatus: 'Oczekujące', reason: 'Przygotowanie do usunięcia' }) });
+            }
+
+            // Teraz wysyłamy poprawne usunięcie
             await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id: id }) });
+            
             row.remove(); 
-            globalData = globalData.filter(r => r.id !== id); 
+            globalData = globalData.filter(r => r.id != id); 
             showToast('Usunięto pomyślnie!');
             setTimeout(loadData, 500); 
-        } catch(e) { showToast('Błąd komunikacji', 'danger'); row.style.opacity = '1'; row.style.pointerEvents = 'auto'; }
+        } catch(e) { 
+            showToast('Błąd komunikacji', 'danger'); 
+            row.style.opacity = '1'; 
+            row.style.pointerEvents = 'auto'; 
+        }
     }
 
     async function updateStatus(id, stat, reason = '', btn) {
