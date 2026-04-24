@@ -710,6 +710,9 @@
             } else if (currentRole === 'lider' && row.status === 'Do odbioru' && czyToWlasciciel) {
                 // LIDER ODBIERA I KOŃCZY PROCES
                 actionButtons = `<button class="btn btn-sm btn-success w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Odebrane', '', this)"><i class="bi bi-check2-circle"></i> Potwierdź Odbiór</button>`;
+            } else if (currentRole === 'lider' && row.status === 'Odebrane' && showArchive) {
+                // LIDER MOŻE ZAMÓWIĆ PONOWNIE Z ARCHIWUM
+                actionButtons = `<button class="btn btn-sm btn-outline-primary w-100 rounded-pill shadow-sm" onclick="buyAgain(${row.id})"><i class="bi bi-cart-plus"></i> Kup ponownie</button>`;
             }
 
             let sClass = "badge-soft-secondary";
@@ -869,6 +872,37 @@
                 setTimeout(() => refreshTableView(false), 600); 
             }
         } catch (error) { showToast('Błąd sieci', 'danger'); row.style.opacity = '1'; row.style.pointerEvents = 'auto'; }
+    }
+
+    // --- FUNKCJA: KUP PONOWNIE (Z ARCHIWUM) ---
+    function buyAgain(id) {
+        // 1. Znajdź dane zamówienia na podstawie ID
+        const orderData = globalData.find(item => item.id === id);
+        if (!orderData) return;
+
+        // 2. Wypełnij formularz na górze strony
+        document.getElementById('produkt').value = orderData.produkt || '';
+        document.getElementById('strefa').value = orderData.strefa || '';
+        document.getElementById('ilosc').value = orderData.ilosc || 1;
+        document.getElementById('jednostka').value = orderData.jednostka || 'PCS';
+        document.getElementById('priorytet').value = orderData.priorytet || 'Normalny';
+        document.getElementById('cena').value = orderData.cena || '';
+        document.getElementById('link').value = orderData.link || '';
+
+        // 3. Przewiń widok płynnie do formularza
+        const formView = document.getElementById('view-lider');
+        formView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // 4. Efekt wizualny (podświetlenie i powiadomienie)
+        showToast('Skopiowano dane. Możesz edytować i wysłać ponownie!', 'success');
+        
+        // Mignięcie formularza na niebiesko, by zwrócić uwagę użytkownika
+        const cardBody = formView.querySelector('.card');
+        if(cardBody) {
+            cardBody.style.transition = "box-shadow 0.3s ease";
+            cardBody.style.boxShadow = "0 0 25px rgba(59, 130, 246, 0.6)";
+            setTimeout(() => cardBody.style.boxShadow = "0 10px 40px var(--shadow-color)", 1500);
+        }
     }
 </script>
 </body>
