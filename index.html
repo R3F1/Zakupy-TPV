@@ -697,15 +697,20 @@
             // Kierownik widzi przycisk "Akceptuj" dla oczekujących i ODRZUCONYCH
             if (currentRole === 'kierownik' && (row.status === 'Oczekujące' || row.status === 'Odrzucone')) {
                 actionButtons = `<button class="btn btn-sm btn-success w-100 mb-1 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)">Akceptuj</button>`;
-                // Odrzuć widoczne tylko gdy jeszcze nie jest odrzucone
                 if (row.status === 'Oczekujące') {
                     actionButtons += `<button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm" style="background:var(--card-bg);" onclick="rejectOrder(${row.id}, this)">Odrzuć</button>`;
                 }
-            } else if (currentRole === 'lider' && (row.status === 'Oczekujące' || row.status === 'Odrzucone') && czyToWlasciciel) {
-                // Lider ma dostęp do przycisków Edytuj i Usuń by naprawić błąd i odnowić zlecenie
+            } else if (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel) {
+                // Lider: Normalne oczekujące zapotrzebowanie
                 actionButtons = `
                     <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill shadow-sm" onclick="editQty(${row.id}, ${row.ilosc}, this)"><i class="bi bi-pencil-square"></i> Edytuj</button>
                     <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm mb-1" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Usuń</button>`;
+            } else if (currentRole === 'lider' && row.status === 'Odrzucone' && czyToWlasciciel) {
+                // Lider: Odrzucone zapotrzebowanie (dodana opcja 'Wyślij ponownie')
+                actionButtons = `
+                    <button class="btn btn-sm btn-success w-100 mb-1 rounded-pill shadow-sm" onclick="resendOrder(${row.id}, this)"><i class="bi bi-send-check"></i> Wyślij ponownie</button>
+                    <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill shadow-sm" onclick="editQty(${row.id}, ${row.ilosc}, this)"><i class="bi bi-pencil-square"></i> Edytuj</button>
+                    <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Usuń</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
                 actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zamówione', '', this)">Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
@@ -713,7 +718,6 @@
             } else if (currentRole === 'lider' && row.status === 'Do odbioru' && czyToWlasciciel) {
                 actionButtons = `<button class="btn btn-sm btn-success w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Odebrane', '', this)"><i class="bi bi-check2-circle"></i> Potwierdź Odbiór</button>`;
             } else if (currentRole === 'lider' && row.status === 'Odebrane' && showArchive) {
-                // Nowa akcja "Kup ponownie" wysyłająca od razu nowe zgłoszenie
                 actionButtons = `<button class="btn btn-sm btn-outline-primary w-100 rounded-pill shadow-sm" onclick="buyAgain(${row.id})"><i class="bi bi-cart-plus"></i> Kup ponownie</button>`;
             }
 
@@ -841,6 +845,16 @@
         if (powod) updateStatus(idWiersza, 'Odrzucone', powod, btnElement);
     }
 
+    // --- NOWA FUNKCJA: WYŚLIJ PONOWNIE DLA LIDERA ---
+    function resendOrder(id, btnElement) {
+        const komentarz = prompt("Podaj komentarz do ponownej wysyłki (Będzie widoczny dla Kierownika):");
+        if (komentarz !== null) {
+            const reasonStr = komentarz.trim() !== '' ? "Poprawka: " + komentarz.trim() : "Wysłano ponownie";
+            // Zmiana statusu z powrotem na Oczekujące i nadpisanie powodu
+            updateStatus(id, 'Oczekujące', reasonStr, btnElement);
+        }
+    }
+
     async function deleteOrder(id, btnElement) {
         if (!confirm('Anulować to zgłoszenie?')) return;
         const row = btnElement.closest('tr'); row.style.opacity = '0.3'; row.style.pointerEvents = 'none';
@@ -858,7 +872,7 @@
             const nrZam = prompt("Podaj numer zamówienia / śledzenia (zostaw puste jeśli brak):");
             if (nrZam === null) return;
             if (nrZam.trim() !== '') reason = "Nr zam: " + nrZam.trim();
-        } else if(stat !== 'Odrzucone' && !confirm(`Potwierdzasz zmianę na: "${stat}"?`)) return;
+        } else if(stat !== 'Odrzucone' && stat !== 'Oczekujące' && !confirm(`Potwierdzasz zmianę na: "${stat}"?`)) return;
         
         const row = btn.closest('tr');
         if (row) { row.style.opacity = '0.4'; row.style.pointerEvents = 'none'; }
@@ -897,20 +911,16 @@
         } catch (error) { showToast('Błąd sieci', 'danger'); row.style.opacity = '1'; row.style.pointerEvents = 'auto'; }
     }
 
-    // --- ZAKTUALIZOWANA FUNKCJA: KUP PONOWNIE (WYSYŁA OD RAZU) ---
     async function buyAgain(id) {
-        // 1. Znajdź dane zamówienia na podstawie ID
         const orderData = globalData.find(item => item.id === id);
         if (!orderData) return;
 
-        // 2. Zapytaj użytkownika dla bezpieczeństwa
         if (!confirm(`Czy na pewno chcesz od razu zamówić ponownie:\n\n${orderData.produkt} (${orderData.ilosc} ${orderData.jednostka || 'PCS'})?`)) {
             return;
         }
 
         showToast('Wysyłanie ponownego zamówienia...', 'info');
 
-        // 3. Przygotuj paczkę z danymi, opierając się na archiwalnym zamówieniu
         const data = {
             action: 'add',
             produkt: orderData.produkt,
@@ -923,7 +933,6 @@
             cena: orderData.cena || ''
         };
 
-        // 4. Wyślij do arkusza
         try {
             await fetch(SCRIPT_URL, { 
                 method: 'POST', 
@@ -932,8 +941,6 @@
             });
             
             showToast('Zapotrzebowanie zostało wysłane ponownie!');
-            
-            // 5. Odśwież tabelę, by nowa pozycja pojawiła się na liście (z nowym ID)
             loadData();
             
         } catch (error) {
