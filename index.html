@@ -597,7 +597,6 @@
                     <button class="btn btn-success rounded-pill shadow-sm" onclick="executeBulk('Zaakceptowane')"><i class="bi bi-check-all"></i> Akceptuj Wybrane</button>
                     <button class="btn btn-outline-danger rounded-pill shadow-sm bg-white" onclick="executeBulk('Odrzucone')">Odrzuć Wybrane</button>`;
             } else if (currentRole === 'lukasz') {
-                // ŁUKASZ MOŻE ZMIENIAĆ NA ZAMÓWIONE LUB DO ODBIORU
                 buttonsHtml = `
                     <button class="btn btn-primary rounded-pill shadow-sm" onclick="executeBulk('Zamówione')"><i class="bi bi-cart-check"></i> Oznacz Kupione</button>
                     <button class="btn btn-info text-white rounded-pill shadow-sm" onclick="executeBulk('Do odbioru')"><i class="bi bi-box-seam"></i> Dotarły (Do odbioru)</button>`;
@@ -669,12 +668,12 @@
         let visibleCount = 0;
 
         displayData.forEach(row => { 
-            if (row.status === 'Oczekujące') statOczek++;
+            // Odrzucone wpadają teraz z powrotem do licznika "Do akceptacji"
+            if (row.status === 'Oczekujące' || row.status === 'Odrzucone') statOczek++;
             if (row.status === 'Zaakceptowane') statZaakc++;
             if (row.status === 'Zamówione') statZamow++;
             if (row.status === 'Do odbioru') statDoOdbioru++;
 
-            // ODEBRANE ZAMIAST DOSTARCZONE JEST TERAZ ARCHIWIZOWANE
             if (!showArchive && row.status === 'Odebrane') return;
             visibleCount++;
 
@@ -686,8 +685,8 @@
             
             // CHECKBOX DO AKCJI GRUPOWYCH
             let checkboxHtml = '';
-            if ((currentRole === 'kierownik' && row.status === 'Oczekujące') ||
-                (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel) ||
+            if ((currentRole === 'kierownik' && (row.status === 'Oczekujące' || row.status === 'Odrzucone')) ||
+                (currentRole === 'lider' && (row.status === 'Oczekujące' || row.status === 'Odrzucone') && czyToWlasciciel) ||
                 (currentRole === 'lukasz' && (row.status === 'Zaakceptowane' || row.status === 'Zamówione'))) {
                 checkboxHtml = `<input class="form-check-input row-checkbox shadow-sm" type="checkbox" value="${row.id}" onchange="updateBulkBar()">`;
             } else {
@@ -695,32 +694,42 @@
             }
 
             let actionButtons = '-';
-            if (currentRole === 'kierownik' && row.status === 'Oczekujące') {
-                actionButtons = `<button class="btn btn-sm btn-success w-100 mb-1 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)">Akceptuj</button>
-                                 <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm" style="background:var(--card-bg);" onclick="rejectOrder(${row.id}, this)">Odrzuć</button>`;
-            } else if (currentRole === 'lider' && row.status === 'Oczekujące' && czyToWlasciciel) {
+            // Kierownik widzi przycisk "Akceptuj" dla oczekujących i ODRZUCONYCH
+            if (currentRole === 'kierownik' && (row.status === 'Oczekujące' || row.status === 'Odrzucone')) {
+                actionButtons = `<button class="btn btn-sm btn-success w-100 mb-1 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zaakceptowane', '', this)">Akceptuj</button>`;
+                // Odrzuć widoczne tylko gdy jeszcze nie jest odrzucone
+                if (row.status === 'Oczekujące') {
+                    actionButtons += `<button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm" style="background:var(--card-bg);" onclick="rejectOrder(${row.id}, this)">Odrzuć</button>`;
+                }
+            } else if (currentRole === 'lider' && (row.status === 'Oczekujące' || row.status === 'Odrzucone') && czyToWlasciciel) {
+                // Lider ma dostęp do przycisków Edytuj i Usuń by naprawić błąd i odnowić zlecenie
                 actionButtons = `
                     <button class="btn btn-sm btn-outline-primary w-100 mb-1 rounded-pill shadow-sm" onclick="editQty(${row.id}, ${row.ilosc}, this)"><i class="bi bi-pencil-square"></i> Edytuj</button>
                     <button class="btn btn-sm btn-outline-danger w-100 rounded-pill shadow-sm mb-1" onclick="deleteOrder(${row.id}, this)"><i class="bi bi-trash"></i> Usuń</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zaakceptowane') {
                 actionButtons = `<button class="btn btn-sm btn-primary w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Zamówione', '', this)">Kupione</button>`;
             } else if (currentRole === 'lukasz' && row.status === 'Zamówione') {
-                // ŁUKASZ OZNACZA JAKO DO ODBIORU
                 actionButtons = `<button class="btn btn-sm btn-info w-100 text-white rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Do odbioru', '', this)" style="box-shadow: 0 4px 10px rgba(6, 182, 212, 0.4);"><i class="bi bi-box-seam"></i> Dotarło (Do odbioru)</button>`;
             } else if (currentRole === 'lider' && row.status === 'Do odbioru' && czyToWlasciciel) {
-                // LIDER ODBIERA I KOŃCZY PROCES
                 actionButtons = `<button class="btn btn-sm btn-success w-100 rounded-pill shadow-sm" onclick="updateStatus(${row.id}, 'Odebrane', '', this)"><i class="bi bi-check2-circle"></i> Potwierdź Odbiór</button>`;
             } else if (currentRole === 'lider' && row.status === 'Odebrane' && showArchive) {
-                // LIDER MOŻE ZAMÓWIĆ PONOWNIE Z ARCHIWUM
+                // Nowa akcja "Kup ponownie" wysyłająca od razu nowe zgłoszenie
                 actionButtons = `<button class="btn btn-sm btn-outline-primary w-100 rounded-pill shadow-sm" onclick="buyAgain(${row.id})"><i class="bi bi-cart-plus"></i> Kup ponownie</button>`;
             }
 
             let sClass = "badge-soft-secondary";
+            let displayStatus = row.status;
+            
             if(row.status === 'Zaakceptowane') sClass = "badge-soft-warning";
             if(row.status === 'Zamówione') sClass = "badge-soft-primary";
             if(row.status === 'Do odbioru') sClass = "badge-soft-info";
             if(row.status === 'Odebrane') sClass = "badge-soft-success";
-            if(row.status === 'Odrzucone') sClass = "badge-soft-danger";
+            
+            // Kolor i ikona dla Odrzuconego
+            if(row.status === 'Odrzucone') {
+                sClass = "badge-soft-danger";
+                displayStatus = "❗️ Odrzucone";
+            }
 
             const pBadge = row.priorytet === 'PILNE' ? '<span class="badge-urgent">PILNE</span>' : '';
             const cenaWidok = row.cena ? `<span class="price-tag">${row.cena} zł</span>` : '-';
@@ -741,7 +750,7 @@
                         <button class="btn btn-sm btn-light border text-secondary px-2" onclick="copyToClipboard('${row.link}')" title="Kopiuj link"><i class="bi bi-clipboard"></i></button>
                     </div>
                 </td>
-                <td class="text-center status-col"><span class="badge ${sClass}">${row.status}</span></td>
+                <td class="text-center status-col"><span class="badge ${sClass}">${displayStatus}</span></td>
                 <td class="powod-text small">${row.powod}</td>
                 <td class="text-center align-middle px-2">${actionButtons}</td>
             `;
@@ -778,9 +787,17 @@
         const rows = document.querySelectorAll('#ordersTableBody tr:not(#emptyStateRow)');
         let visibleCount = 0;
         rows.forEach(row => {
-            if(statusName === 'wszystkie') { row.style.display = ""; visibleCount++; } 
-            else {
-                let match = row.getAttribute('data-status') === statusName;
+            if(statusName === 'wszystkie') { 
+                row.style.display = ""; visibleCount++; 
+            } else {
+                let rowStatus = row.getAttribute('data-status');
+                let match = (rowStatus === statusName);
+                
+                // Filtr "Oczekujące" pokazuje od teraz zamówienia "oczekujące" oraz "odrzucone"
+                if (statusName === 'oczekujące' && rowStatus === 'odrzucone') {
+                    match = true;
+                }
+
                 row.style.display = match ? "" : "none";
                 if(match) visibleCount++;
             }
@@ -850,16 +867,22 @@
             await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'update', id: id, newStatus: stat, reason: reason }) });
             if (row) {
                 let sClass = "badge-soft-secondary";
+                let displayStat = stat;
+                
                 if(stat === 'Zaakceptowane') sClass = "badge-soft-warning";
                 if(stat === 'Zamówione') sClass = "badge-soft-primary";
                 if(stat === 'Do odbioru') sClass = "badge-soft-info";
                 if(stat === 'Odebrane') sClass = "badge-soft-success";
-                if(stat === 'Odrzucone') sClass = "badge-soft-danger";
+                if(stat === 'Odrzucone') {
+                    sClass = "badge-soft-danger";
+                    displayStat = "❗️ Odrzucone";
+                }
 
-                row.querySelector('.status-col').innerHTML = `<span class="badge ${sClass}">${stat}</span>`;
+                row.querySelector('.status-col').innerHTML = `<span class="badge ${sClass}">${displayStat}</span>`;
                 row.setAttribute('data-status', stat.toLowerCase());
-                if (stat === 'Odrzucone') row.querySelector('td:nth-child(11)').innerText = reason;
-                if (stat === 'Zamówione') row.querySelector('td:nth-child(11)').innerText = reason;
+                
+                // Aktualizujemy powód i wyświetlamy informację "Gotowe" w czasie trwania animacji
+                row.querySelector('td:nth-child(11)').innerText = reason;
                 row.querySelector('td:nth-child(12)').innerHTML = '<span class="badge bg-light text-success border border-success"><i class="bi bi-check-all"></i> Gotowe</span>';
 
                 row.style.opacity = '1'; row.style.pointerEvents = 'auto';
@@ -874,34 +897,47 @@
         } catch (error) { showToast('Błąd sieci', 'danger'); row.style.opacity = '1'; row.style.pointerEvents = 'auto'; }
     }
 
-    // --- FUNKCJA: KUP PONOWNIE (Z ARCHIWUM) ---
-    function buyAgain(id) {
+    // --- ZAKTUALIZOWANA FUNKCJA: KUP PONOWNIE (WYSYŁA OD RAZU) ---
+    async function buyAgain(id) {
         // 1. Znajdź dane zamówienia na podstawie ID
         const orderData = globalData.find(item => item.id === id);
         if (!orderData) return;
 
-        // 2. Wypełnij formularz na górze strony
-        document.getElementById('produkt').value = orderData.produkt || '';
-        document.getElementById('strefa').value = orderData.strefa || '';
-        document.getElementById('ilosc').value = orderData.ilosc || 1;
-        document.getElementById('jednostka').value = orderData.jednostka || 'PCS';
-        document.getElementById('priorytet').value = orderData.priorytet || 'Normalny';
-        document.getElementById('cena').value = orderData.cena || '';
-        document.getElementById('link').value = orderData.link || '';
+        // 2. Zapytaj użytkownika dla bezpieczeństwa
+        if (!confirm(`Czy na pewno chcesz od razu zamówić ponownie:\n\n${orderData.produkt} (${orderData.ilosc} ${orderData.jednostka || 'PCS'})?`)) {
+            return;
+        }
 
-        // 3. Przewiń widok płynnie do formularza
-        const formView = document.getElementById('view-lider');
-        formView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        showToast('Wysyłanie ponownego zamówienia...', 'info');
 
-        // 4. Efekt wizualny (podświetlenie i powiadomienie)
-        showToast('Skopiowano dane. Możesz edytować i wysłać ponownie!', 'success');
-        
-        // Mignięcie formularza na niebiesko, by zwrócić uwagę użytkownika
-        const cardBody = formView.querySelector('.card');
-        if(cardBody) {
-            cardBody.style.transition = "box-shadow 0.3s ease";
-            cardBody.style.boxShadow = "0 0 25px rgba(59, 130, 246, 0.6)";
-            setTimeout(() => cardBody.style.boxShadow = "0 10px 40px var(--shadow-color)", 1500);
+        // 3. Przygotuj paczkę z danymi, opierając się na archiwalnym zamówieniu
+        const data = {
+            action: 'add',
+            produkt: orderData.produkt,
+            strefa: orderData.strefa,
+            ilosc: orderData.ilosc || 1,
+            jednostka: orderData.jednostka || 'PCS',
+            link: orderData.link || '',
+            kto: currentUser,
+            priorytet: orderData.priorytet || 'Normalny',
+            cena: orderData.cena || ''
+        };
+
+        // 4. Wyślij do arkusza
+        try {
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify(data), 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+            });
+            
+            showToast('Zapotrzebowanie zostało wysłane ponownie!');
+            
+            // 5. Odśwież tabelę, by nowa pozycja pojawiła się na liście (z nowym ID)
+            loadData();
+            
+        } catch (error) {
+            showToast('Błąd wysyłania', 'danger');
         }
     }
 </script>
