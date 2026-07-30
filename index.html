@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f2a4a">
-    <title>TPV Zakupy Techniczne 2.1 AI</title>
+    <title>TPV Zakupy Techniczne 2.0 AI</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -889,6 +889,10 @@
         }
         .ai-api-state.success { border-color: rgba(22, 138, 87, .35); color: var(--tpv-success); background: rgba(22, 138, 87, .08); }
         .ai-api-state.error { border-color: rgba(207, 52, 66, .35); color: var(--tpv-danger); background: rgba(207, 52, 66, .08); }
+        .ai-answer-source { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 7px; color: var(--tpv-primary); font-size: 8px; font-weight: 800; letter-spacing: .45px; text-transform: uppercase; }
+        .ai-answer-point { display: block; margin: 3px 0; }
+        .ai-api-warning { margin-bottom: 9px; padding: 8px 9px; border: 1px solid rgba(207, 52, 66, .28); border-radius: 9px; background: rgba(207, 52, 66, .07); color: var(--tpv-danger); font-size: 8px; line-height: 1.5; }
+        .ai-api-warning span { color: var(--tpv-muted); }
 
         @media (max-width: 780px) {
             .ai-assistant-root { right: 14px; bottom: 14px; }
@@ -2560,7 +2564,7 @@
 
     /* ========================= TPV INFO AI ========================= */
     const AI_CONFIG_STORAGE_KEY = 'tpvAiConfigV1';
-    const AI_HISTORY_STORAGE_KEY = 'tpvAiHistoryV1';
+    const AI_HISTORY_STORAGE_KEY = 'tpvAiHistoryV2';
     let aiBusy = false;
     let aiConversation = [];
     let aiProductHintQuery = '';
@@ -2614,8 +2618,8 @@
         strip.classList.toggle('api', apiReady);
         strip.classList.toggle('local', !apiReady);
         text.textContent = apiReady
-            ? `Gemini AI aktywne (${config.model}) — pytania mogą wysyłać dane zamówień do Google.`
-            : 'Tryb lokalny — dane nie opuszczają przeglądarki.';
+            ? `Gemini AI aktywne (${config.model}) — swobodna rozmowa trafia do Gemini, a szybkie akcje są liczone lokalnie.`
+            : 'Tryb lokalny — wyszukiwanie i podsumowania działają bez wysyłania danych.';
         if (online) online.style.background = apiReady ? '#20c777' : '#f2a71b';
     }
 
@@ -2730,27 +2734,42 @@
 
         const typing = addAiTyping();
         try {
-            const local = answerLocalAssistant(text);
             const config = getAiConfig();
+            const local = answerLocalAssistant(text);
+            const useLocalFirst = shouldUseLocalAssistantFirst(text, Boolean(forcedText));
 
-            if (local.handled) {
+            // Szybkie akcje i jednoznaczne wyszukiwanie wykonujemy lokalnie,
+            // aby zwrócić interaktywne karty i nie zużywać limitu API.
+            if (useLocalFirst && local.handled) {
                 typing?.remove();
                 addAiMessage('assistant', local.html || escapeHtml(local.text), Boolean(local.html));
                 return;
             }
 
+            // Przy aktywnym API zwykła rozmowa zawsze trafia do Gemini.
             if (config.enabled && config.apiKey) {
                 const response = await callGeminiAssistant(text, config);
                 typing?.remove();
-                addAiMessage('assistant', response);
+                addAiMessage('assistant', formatGeminiAnswer(response), true);
+                return;
+            }
+
+            typing?.remove();
+            if (local.handled) {
+                addAiMessage('assistant', local.html || escapeHtml(local.text), Boolean(local.html));
             } else {
-                typing?.remove();
                 addAiMessage('assistant', local.text || 'Nie rozpoznałem dokładnie pytania. Spróbuj podać nazwę produktu albo użyj przycisku „Co wymaga uwagi?”.');
             }
         } catch (error) {
             typing?.remove();
+            const errorText = friendlyAiError(error);
             const fallback = answerLocalAssistant(text, true);
-            addAiMessage('assistant', fallback.html || escapeHtml(fallback.text || `Nie udało się połączyć z Gemini: ${friendlyAiError(error)}`), Boolean(fallback.html));
+            if (fallback.handled) {
+                const fallbackContent = fallback.html || escapeHtml(fallback.text || '');
+                addAiMessage('assistant', `<div class="ai-api-warning"><strong>Gemini nie odpowiedziało:</strong> ${escapeHtml(errorText)}<br><span>Poniżej wynik lokalny.</span></div>${fallbackContent}`, true);
+            } else {
+                addAiMessage('assistant', `<div class="ai-api-warning"><strong>Nie udało się połączyć z Gemini.</strong><br>${escapeHtml(errorText)}<br><span>Sprawdź model i wykonaj ponownie test API w ustawieniach.</span></div>`, true);
+            }
         } finally {
             setAiBusy(false);
         }
@@ -2788,6 +2807,44 @@
                 resizeAiInput(input);
             }
         }
+    }
+
+    function shouldUseLocalAssistantFirst(question, wasForced = false) {
+        const q = normalizeAiText(question);
+        if (wasForced) return true;
+
+        // Tylko jasno określone polecenia operacyjne przechwytujemy lokalnie.
+        const exactOperationalIntent = [
+            /^(co wymaga( teraz)? mojej uwagi|co mam do zrobienia|pokaz zadania)$/,
+            /^(pokaz|wyswietl|lista) piln(e|ych)?( zamowienia| pozycje)?$/,
+            /^(ktore|pokaz) .*czekaja najdluzej$/,
+            /^(pokaz|wyswietl|lista) .*do akceptacji$/,
+            /^(pokaz|wyswietl|lista) .*do kupienia$/,
+            /^(pokaz|wyswietl|lista) .*do odbioru$/,
+            /^(pokaz|wyswietl|lista) .*w drodze$/,
+            /^(pokaz|wyswietl|lista) .*odrzucone$/,
+            /^(podsumuj|pokaz) (wartosc|sume|koszt)/,
+            /^(pokaz|znajdz) (duplikaty|podobne|powtarzajace)/
+        ].some(pattern => pattern.test(q));
+
+        return exactOperationalIntent || isExplicitProductSearch(question);
+    }
+
+    function isExplicitProductSearch(question) {
+        const q = normalizeAiText(question);
+        return /^(znajdz|wyszukaj|szukaj)\b/.test(q)
+            || /^(pokaz|sprawdz) (historie|historie zakupow|wczesniejsze zamowienia)\b/.test(q)
+            || /^(czy|kiedy|gdzie) .*\b(zamawialismy|zamawiany|kupowalismy|kupiony)\b/.test(q)
+            || /\bhistoria (dla|produktu)\b/.test(q);
+    }
+
+    function formatGeminiAnswer(value) {
+        let safe = escapeHtml(String(value || '').trim());
+        safe = safe
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/^[-•]\s+(.+)$/gm, '<span class="ai-answer-point">• $1</span>')
+            .replace(/\n/g, '<br>');
+        return `<div class="ai-answer-source"><i class="bi bi-stars"></i> Gemini</div>${safe}`;
     }
 
     function normalizeAiText(value) {
@@ -2887,18 +2944,28 @@
             return { handled: true, html: buildDuplicateSummaryHtml() };
         }
 
-        const productQuery = extractProductQuery(question);
-        if (productQuery) {
-            const matches = findProductMatches(productQuery, 6);
-            if (matches.length) return { handled: true, html: buildOrderResultsHtml(matches, `Historia dla: ${productQuery}`) };
-            if (/znajdz|szukaj|zamawial|histori|produkt/.test(q)) {
+        // Nazwy produktów wyszukujemy tylko wtedy, gdy użytkownik faktycznie
+        // poprosił o wyszukiwanie. Krótkie pytania typu „działa?” nie mogą
+        // zostać potraktowane jak produkt.
+        if (isExplicitProductSearch(question)) {
+            const productQuery = extractProductQuery(question);
+            if (productQuery) {
+                const matches = findProductMatches(productQuery, 6);
+                if (matches.length) return { handled: true, html: buildOrderResultsHtml(matches, `Historia dla: ${productQuery}`) };
                 return { handled: true, text: `Nie znalazłem wcześniejszych zamówień pasujących do „${productQuery}”. Spróbuj krótszej nazwy produktu.` };
             }
         }
 
-        if (forceFallback) {
-            const genericMatches = findProductMatches(question, 5);
+        if (forceFallback && isExplicitProductSearch(question)) {
+            const genericMatches = findProductMatches(extractProductQuery(question), 5);
             if (genericMatches.length) return { handled: true, html: buildOrderResultsHtml(genericMatches, 'Najbardziej podobne wcześniejsze zamówienia') };
+        }
+
+        if (/^(hej|czesc|dzien dobry|siema)$/.test(q)) {
+            return { handled: true, text: `Dzień dobry, ${currentUser || 'użytkowniku'}. Mogę sprawdzić zamówienia, historię produktów i sprawy wymagające uwagi.` };
+        }
+        if (/^(dziala|test|halo|jestes|czy dzialasz)$/.test(q)) {
+            return { handled: true, text: 'Tak, działam. W trybie lokalnym analizuję zamówienia, a po aktywacji API swobodna rozmowa trafia do Gemini.' };
         }
 
         return {
@@ -3045,7 +3112,10 @@
             recent.push({ role: 'user', parts: [{ text: userText }] });
         }
 
-        const systemPrompt = `Jesteś TPV Info AI, wewnętrznym asystentem zakupów technicznych. Odpowiadasz po polsku, konkretnie i krótko. Analizuj wyłącznie przekazane dane zamówień. Nie wymyślaj cen, dat, statusów, linków ani decyzji. Gdy danych brakuje, napisz to jasno. Nie ujawniaj haseł, kluczy API ani danych logowania. Możesz wskazywać możliwe duplikaty, wcześniejsze zakupy, długo oczekujące pozycje i podsumowania, ale ostateczną decyzję zawsze podejmuje pracownik. Format odpowiedzi: maksymalnie 8 krótkich akapitów lub punktów.\n\nAKTUALNE DANE:\n${buildGeminiDataContext()}`;
+        const systemPrompt = `Jesteś TPV Info AI, wewnętrznym asystentem zakupów technicznych. Prowadzisz normalną, naturalną rozmowę po polsku. Odpowiadaj bez powtarzania jednej szablonowej formuły. Dopasuj odpowiedź dokładnie do ostatniego pytania użytkownika. Jeśli pytanie jest zwykłym testem, powitaniem lub rozmową, odpowiedz naturalnie i nie pokazuj przypadkowych produktów. Gdy pytanie dotyczy zamówień, analizuj wyłącznie przekazane dane. Nie wymyślaj cen, dat, statusów, linków ani decyzji. Gdy danych brakuje, napisz to jasno. Nie ujawniaj haseł, kluczy API ani danych logowania. Możesz wskazywać możliwe duplikaty, wcześniejsze zakupy, długo oczekujące pozycje i podsumowania, ale ostateczną decyzję zawsze podejmuje pracownik. Nie traktuj krótkich zdań takich jak „działa?”, „hej” albo „mogę pomóc?” jako nazw produktów. Format odpowiedzi: zwykle 1–5 krótkich akapitów lub punktów.
+
+AKTUALNE DANE:
+${buildGeminiDataContext()}`;
 
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -3054,7 +3124,7 @@
                 'x-goog-api-key': config.apiKey
             },
             body: JSON.stringify({
-                system_instruction: { parts: [{ text: systemPrompt }] },
+                systemInstruction: { parts: [{ text: systemPrompt }] },
                 contents: recent.length ? recent : [{ role: 'user', parts: [{ text: userText }] }],
                 generationConfig: { temperature: 0.2, maxOutputTokens: 900 }
             })
